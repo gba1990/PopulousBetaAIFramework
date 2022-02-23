@@ -2,6 +2,7 @@
 -- This will be used to localize all the files within, in case some folders need to be changed or something
 FRAMEWORK_PATH = "_fr"
 UTIL_PATH = FRAMEWORK_PATH .. "/" .. "util"
+LEVELS_PATH = FRAMEWORK_PATH .. "/" .. "levels"
 WIP_PATH = FRAMEWORK_PATH .. "/" .. "wip"
 
 -- To have all modules
@@ -32,4 +33,11 @@ include(UTIL_PATH.."/EventManager.lua")
 include(UTIL_PATH.."/IngameLogger.lua")
 include(UTIL_PATH.."/FrameworkMath.lua")
 
+-- Other variables
 _gsi = gsi()
+
+if (math.pow == nil) then
+    math.pow = function (x,y)
+        return x^y
+    end
+end

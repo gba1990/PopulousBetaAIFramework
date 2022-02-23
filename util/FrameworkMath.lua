@@ -2,6 +2,8 @@ import(Module_Math)
 import(Module_Map)
 import(Module_DataTypes)
 
+-- Maximun degrees of the ingame angles
+-- Seem to be 2069, but it is a param in case it needs to be changed
 local INGAME_ANGLE_MAX = 2069
 local INGAME_COORDINATE_MAX = 32768
 
@@ -14,8 +16,35 @@ local function ingameAngleToDeg(angleInIngameAngle)
     return angleInIngameAngle * 360/INGAME_ANGLE_MAX
 end
 
+-- Returns the hypothenuse of the triangle of sides cathetus1 and cathetus2
 local function hypotenuse(c1, c2)
     return math.sqrt(c1^2 + c2^2)
+end
+
+local function normalizeVector(x, y)
+    local length = math.sqrt((x * x) + (y * y))
+    return x/length, y/length
+end
+
+-- Returns an angle 90º from @param angle, clockwise if direction = 1 or nil and counterclockwise if direction = -1
+-- angle must be in ingame angles (those that range from 0 to 2070 or something like that)
+local function orthogonalAngle(angle, direction)
+    if (direction == nil) then
+        direction = 1
+    end
+    return angle + direction * INGAME_ANGLE_MAX/4
+end
+
+-- Returns the angle that is 180º the other way (in ingame angles)
+local function oppositeAngle(angle)
+    return orthogonalAngle(orthogonalAngle(angle))
+end
+
+local function squareWorldDistance(c1, c2)
+    local rX = math.pow(c1.Xpos - c2.Xpos, 2)
+    local rY = math.pow(c1.Ypos - c2.Ypos, 2)
+    local rZ = math.pow(c1.Zpos - c2.Zpos, 2)
+    return rX+rY+rZ
 end
 
 local function calculateMoveDistance(speed, time)
@@ -54,29 +83,121 @@ local function calculateThingPositionAfterTime(thing, time)
     return frameworkMath.calculatePosition(thing.Pos.D3, angle, distance)
 end
 
-local function orthogonalAngle(angle, direction)
-    if (direction == nil) then
-        direction = 1
+-- HELPER function
+local function _calculateClosestPointHavingInMindMapBorders(p1, p2)
+    local points = {}
+    local up, down, right, left, 
+        upright, downright, downleft, upleft = 
+            {Xpos = p2.Xpos, Ypos = 0, Zpos = p2.Zpos},{Xpos = p2.Xpos, Ypos = 0, Zpos = p2.Zpos},{Xpos = p2.Xpos, Ypos = 0, Zpos = p2.Zpos},{Xpos = p2.Xpos, Ypos = 0, Zpos = p2.Zpos},
+            {Xpos = p2.Xpos, Ypos = 0, Zpos = p2.Zpos},{Xpos = p2.Xpos, Ypos = 0, Zpos = p2.Zpos},{Xpos = p2.Xpos, Ypos = 0, Zpos = p2.Zpos},{Xpos = p2.Xpos, Ypos = 0, Zpos = p2.Zpos}
+    
+    local multiplier = 2
+
+    down.Xpos = down.Xpos + INGAME_COORDINATE_MAX*multiplier
+    up.Xpos = up.Xpos - INGAME_COORDINATE_MAX*multiplier
+
+    left.Zpos = left.Zpos + INGAME_COORDINATE_MAX*multiplier
+    right.Zpos = right.Zpos - INGAME_COORDINATE_MAX*multiplier
+
+    upright.Xpos = upright.Xpos + INGAME_COORDINATE_MAX*multiplier
+    upright.Zpos = upright.Zpos + INGAME_COORDINATE_MAX*multiplier
+    
+    downright.Xpos = downright.Xpos - INGAME_COORDINATE_MAX*multiplier
+    downright.Zpos = downright.Zpos + INGAME_COORDINATE_MAX*multiplier
+
+    downleft.Xpos = downleft.Xpos - INGAME_COORDINATE_MAX*multiplier
+    downleft.Zpos = downleft.Zpos - INGAME_COORDINATE_MAX*multiplier
+
+    upleft.Xpos = upleft.Xpos + INGAME_COORDINATE_MAX*multiplier
+    upleft.Zpos = upleft.Zpos - INGAME_COORDINATE_MAX*multiplier
+    
+    table.insert(points, up)
+    table.insert(points, down)
+    table.insert(points, right)
+    table.insert(points, left)
+    table.insert(points, upright)
+    table.insert(points, downright)
+    table.insert(points, downleft)
+    table.insert(points, upleft)
+
+    local bestDistance = frameworkMath.squareWorldDistance(p1, p2)
+    local bestPoint = p2
+    for i = 1, #(points), 1 do
+        local dist = frameworkMath.squareWorldDistance(p1, points[i])
+        if (dist < bestDistance) then
+            bestDistance = dist
+            bestPoint = (points[i])
+        end
     end
-    return angle + direction * INGAME_ANGLE_MAX/4
-end
-
-local function oppositeAngle(angle)
-    return orthogonalAngle(orthogonalAngle(angle))
-end
-
-local function squareWorldDistance(c1, c2)
-    local rX = math.pow(c1.Xpos - c2.Xpos, 2)
-    local rY = math.pow(c1.Ypos - c2.Ypos, 2)
-    local rZ = math.pow(c1.Zpos - c2.Zpos, 2)
-    return rX+rY+rZ
+    return bestPoint
 end
 
 -- TODO
 local function angleBetweenPoints(p1, p2)
+    -- Important note, as the map is a square of 128x128 centered on 0,0
+    -- Two points at coords (0, 32000) and (0, -32000) are 1000 units appart (more or less)
+    -- This method will solve that calculating first all points adding/substracting 32000 to every
+    -- axis in order to calculate the closest 2 points and then the angle among those
+    -- in order to bypass this issue
+    p2 = _calculateClosestPointHavingInMindMapBorders(p1, p2)
 
+    local _v1x = (p1.Xpos - p2.Xpos)
+    local _v1y = (p1.Zpos - p2.Zpos)
+
+    local _v2x = -1 -- I dont understand math, but if it is 1, the vector is flipped??
+    local _v2y = 0
+
+    _v1x, _v1y = normalizeVector(_v1x, _v1y)
+
+    -- Producto escalar: v1·v2
+    local dotProduct = _v1x * _v2x + _v1y * _v2y
+
+    -- Producto de modulos: |v1|, |v2|
+    local modV1 = math.sqrt( _v1x^2 + _v1y^2 )
+    local modV2 = math.sqrt( _v2x^2 + _v2y^2 )
+
+    -- If dotProduct > 0 -> agudo
+    -- If dotProduct == 0 -> Recto
+    -- If dotProduct < 0 --> Obtuso
+
+    -- cos(angulo) = dotProduct / (modV1 * modV2)
+    local cosAngle = dotProduct / (modV1 * modV2)
+    local angle = math.deg(math.acos(cosAngle))
+    local result = nil
+    local _quadrant = nil
+
+    -- North should be angle zero and +x 90º, thats why I rotate whith the 90º things
+    if(dotProduct > 0) then
+        -- 1º o 2º cuadrante
+        if (_v1y < 0) then
+            -- 1º
+            result = 90 - angle
+            _quadrant = 1
+        else
+            -- 2º
+            result = 90 + angle
+            _quadrant = 2
+        end
+    else
+        -- 3º o 4º cuadrante
+        if (_v1y < 0) then
+            -- 4º
+            result = 450 - angle
+            _quadrant = 4
+        else
+            -- 3º
+            result = 90 + angle
+            _quadrant = 3
+        end
+    end
+    
+    return degToIngameAngle(result), _quadrant
 end
 
+-- Returns Coord3D which represent new coordinates @param distance away from @param startPosition at an angle of @param angle.
+-- startPosition can be Coord2D or Coord3D
+-- angle must be in ingame angles (those that range from 0 to 2070 or something like that)
+-- distance in world distance
 local function calculatePosition(startPosition, angle, distance)
     -- distance = a
     -- x = b
@@ -103,7 +224,9 @@ local function calculatePosition(startPosition, angle, distance)
     return _result
 end
 
--- Approximate value
+-- Returns an approximate value of how long a spell cast will reach endPos from startPos.
+-- This has been tested with lightning and rarely misses on spell range, on larger distances it may not
+-- be calculated so accurately
 local function calculateSpellCastTimeToReachPosition(startPos, endPos)
     local s = util.to_coord2D(startPos)
     local e = util.to_coord2D(endPos)
@@ -122,7 +245,13 @@ local function calculateSpellRangeFromPosition(position, spell, isFromTower)
     local height = point_altitude(position.Xpos, position.Zpos)
 
     local index = math.floor(height/128)
-    return (altBand[index]/256) * spellRange * 0.9
+    local multiplier = 0.9
+    if (isFromTower) then
+        --TODO calculate increase in range from tower
+        -- multiplier = 1.4
+    end
+
+    return (altBand[index]/256) * spellRange * multiplier
 end
 
 -- TODO
@@ -136,8 +265,20 @@ local function furthestInlandPointTowardsAngleAccurate(startPoint, angle, maxChe
 end
 
 frameworkMath = {}
-frameworkMath.hypotenuse = hypotenuse
 frameworkMath.calculatePosition = calculatePosition
-frameworkMath.calculateSpellCastTimeToReachPosition = calculateSpellCastTimeToReachPosition
+frameworkMath.orthogonalAngle = orthogonalAngle
+frameworkMath.oppositeAngle = oppositeAngle
+frameworkMath.hypotenuse = hypotenuse
+frameworkMath.squareWorldDistance = squareWorldDistance
+frameworkMath.angleBetweenPoints = angleBetweenPoints
+frameworkMath.calculateMoveDistance = calculateMoveDistance
+frameworkMath.calculateMoveDistanceWithVelocity = calculateMoveDistanceWithVelocity
+frameworkMath.calculateThingMoveDistance = calculateThingMoveDistance --- TODO rename in doc
 frameworkMath.calculateThingPositionAfterTime = calculateThingPositionAfterTime
+frameworkMath.calculateSpellCastTimeToReachPosition = calculateSpellCastTimeToReachPosition
 frameworkMath.calculateSpellRangeFromPosition = calculateSpellRangeFromPosition
+
+---TODO furthestInlandPointTowardsAngle
+frameworkMath.furthestInlandPointTowardsAngle = furthestInlandPointTowardsAngle
+frameworkMath.furthestInlandPointTowardsAngleAccurate = furthestInlandPointTowardsAngleAccurate
+
