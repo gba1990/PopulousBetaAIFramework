@@ -6,6 +6,14 @@ function GetTurn()
     return getTurn()
 end
 
+local function randomItemFromTable(t)
+  if (#t == 0) then
+    return nil
+  end
+
+  return t[math.random(1, #t)]
+end
+
 -- ty kosjak
 local function tableLength(te)
   local count = 0
@@ -86,6 +94,7 @@ end
 
 util = {}
 util.tableLength = tableLength
+util.randomItemFromTable = randomItemFromTable
 util.clone_Coord2D = clone_Coord2D
 util.clone_Coord3D = clone_Coord3D
 util.create_Coord2D = create_Coord2D

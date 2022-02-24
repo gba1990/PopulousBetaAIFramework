@@ -313,7 +313,11 @@ local function furthestInlandPointTowardsAngleAccurate(startPoint, angle, maxChe
 end
 
 frameworkMath = {}
+frameworkMath.INGAME_ANGLE_MAX = INGAME_ANGLE_MAX
+frameworkMath.INGAME_COORDINATE_MAX  = INGAME_COORDINATE_MAX 
+
 frameworkMath.calculatePosition = calculatePosition
+frameworkMath.normalizeVector = normalizeVector
 frameworkMath.orthogonalAngle = orthogonalAngle
 frameworkMath.oppositeAngle = oppositeAngle
 frameworkMath.hypotenuse = hypotenuse
@@ -321,7 +325,7 @@ frameworkMath.squareWorldDistance = squareWorldDistance
 frameworkMath.angleBetweenPoints = angleBetweenPoints
 frameworkMath.calculateMoveDistance = calculateMoveDistance
 frameworkMath.calculateMoveDistanceWithVelocity = calculateMoveDistanceWithVelocity
-frameworkMath.calculateThingMoveDistance = calculateThingMoveDistance --- TODO rename in doc
+frameworkMath.calculateThingMoveDistance = calculateThingMoveDistance
 frameworkMath.calculateThingPositionAfterTime = calculateThingPositionAfterTime
 frameworkMath.calculateSpellCastTimeToReachPosition = calculateSpellCastTimeToReachPosition
 frameworkMath.calculateSpellRangeFromPosition = calculateSpellRangeFromPosition
