@@ -254,13 +254,60 @@ local function calculateSpellRangeFromPosition(position, spell, isFromTower)
     return (altBand[index]/256) * spellRange * multiplier
 end
 
--- TODO
 local function furthestInlandPointTowardsAngle(startPoint, angle, maxCheckDistance, distanceStep)
+    local result = startPoint
+    local distanceAppart = 0
     
+    for i = 1, maxCheckDistance, distanceStep do
+        local closer = frameworkMath.calculatePosition(startPoint, angle, i)
+        if (point_altitude(closer.Xpos, closer.Zpos) > 1) then
+            result = closer
+            distanceAppart = i
+        else
+            return result, distanceAppart -- We encountered water, stop b4 the function finds an island
+        end
+    end
+    return result, distanceAppart
 end
 
--- TODO
-local function furthestInlandPointTowardsAngleAccurate(startPoint, angle, maxCheckDistance)
+--- From startPoint towards angle, calculate the coast point which is furthest away
+--- This function is more precise. than the otehr one and hence recommended
+--- Use a low intialDistanceStep for small water gaps, if water is too thin, a large step may skip it and consider it land
+--- Returns the coordinate and the distance away
+---@param startPoint Coord2D/Coord3D
+---@param angle number (ingame angle)
+---@param maxCheckDistance number (world coordinates) Optional (default of 30000)
+---@param intialDistanceStep number (world coordinates) Optional (default of 5000)
+---@param minDistanceStep number (world coordinates) Optional (default of 50)
+---@return Coord3D, number
+local function furthestInlandPointTowardsAngleAccurate(startPoint, angle, maxCheckDistance, intialDistanceStep, minDistanceStep)
+    if (maxCheckDistance == nil) then
+        maxCheckDistance = 30000
+    end
+    if (intialDistanceStep == nil) then
+        intialDistanceStep = 5000
+    end
+    if (minDistanceStep == nil) then
+        minDistanceStep = 50
+    end
+
+    local STEP_REDUCE_PER_ITERATION = 2
+    local result = startPoint
+    local newBest = nil
+    local distanceStep = intialDistanceStep
+    local distanceAppart = 0
+
+    while(distanceStep > minDistanceStep)
+    do
+        newBest, distanceAppart = furthestInlandPointTowardsAngle(result, angle, maxCheckDistance, distanceStep)
+
+        maxCheckDistance = maxCheckDistance - distanceAppart
+        result = newBest
+
+        distanceStep = distanceStep / STEP_REDUCE_PER_ITERATION
+    end
+
+    return result, get_world_dist_xyz(startPoint, result)
 
 end
 
@@ -277,8 +324,6 @@ frameworkMath.calculateThingMoveDistance = calculateThingMoveDistance --- TODO r
 frameworkMath.calculateThingPositionAfterTime = calculateThingPositionAfterTime
 frameworkMath.calculateSpellCastTimeToReachPosition = calculateSpellCastTimeToReachPosition
 frameworkMath.calculateSpellRangeFromPosition = calculateSpellRangeFromPosition
-
----TODO furthestInlandPointTowardsAngle
 frameworkMath.furthestInlandPointTowardsAngle = furthestInlandPointTowardsAngle
 frameworkMath.furthestInlandPointTowardsAngleAccurate = furthestInlandPointTowardsAngleAccurate
 
