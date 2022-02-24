@@ -236,28 +236,29 @@ local function calculateSpellCastTimeToReachPosition(startPos, endPos)
     return (distance/1400) + 6
 end
 
--- TODO -- now it just calculates the range according to the "step", better to smooth the function so it is no longer an approx
+--- TODO now it just calculates the range according to the "step", better to smooth the function so it is no longer an approx
 local function calculateSpellRangeFromPosition(position, spell, isFromTower)
     local MAX_LAND_HEIGHT = 1024
     local spellRange = spells_type_info()[spell].WorldCoordRange
 
     local altBand = constants().AltBandSpellRadiusAffectPer256
     local height = point_altitude(position.Xpos, position.Zpos)
+    local towerIncrement = 0
 
     local index = math.floor(height/128)
     local multiplier = 0.9
     if (isFromTower) then
-        --TODO calculate increase in range from tower
-        -- multiplier = 1.4
+        local dtIncrease = constants().MedicineManDtRadius
+        towerIncrement = dtIncrease * 512
     end
 
-    return (altBand[index]/256) * spellRange * multiplier
+    return (altBand[index]/256) * spellRange * multiplier + towerIncrement
 end
 
 local function furthestInlandPointTowardsAngle(startPoint, angle, maxCheckDistance, distanceStep)
     local result = startPoint
     local distanceAppart = 0
-    
+
     for i = 1, maxCheckDistance, distanceStep do
         local closer = frameworkMath.calculatePosition(startPoint, angle, i)
         if (point_altitude(closer.Xpos, closer.Zpos) > 1) then
