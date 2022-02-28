@@ -26,6 +26,7 @@ import(Module_DataTypes)
 import(Module_Sound)
 import(Module_Commands)
 import(Module_Level)
+import(Module_Shapes)
 
 -- Utils
 include(UTIL_PATH.."/Utils.lua")

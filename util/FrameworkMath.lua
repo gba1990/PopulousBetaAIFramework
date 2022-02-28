@@ -40,11 +40,18 @@ local function oppositeAngle(angle)
     return orthogonalAngle(orthogonalAngle(angle))
 end
 
+-- We dont consider borders, so I guess this function is bugged with points within the map
 local function squareWorldDistance(c1, c2)
     local rX = math.pow(c1.Xpos - c2.Xpos, 2)
     local rY = math.pow(c1.Ypos - c2.Ypos, 2)
     local rZ = math.pow(c1.Zpos - c2.Zpos, 2)
     return rX+rY+rZ
+end
+
+local function worldDistance(c1, c2)
+    c1 = util.to_coord2D(c1)
+    c2 = util.to_coord2D(c2)
+    return get_world_dist_xz_quick(c1, c2)
 end
 
 local function calculateMoveDistance(speed, time)
@@ -321,6 +328,7 @@ frameworkMath.normalizeVector = normalizeVector
 frameworkMath.orthogonalAngle = orthogonalAngle
 frameworkMath.oppositeAngle = oppositeAngle
 frameworkMath.hypotenuse = hypotenuse
+frameworkMath.worldDistance = worldDistance
 frameworkMath.squareWorldDistance = squareWorldDistance
 frameworkMath.angleBetweenPoints = angleBetweenPoints
 frameworkMath.calculateMoveDistance = calculateMoveDistance

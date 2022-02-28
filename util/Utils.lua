@@ -14,6 +14,47 @@ local function randomItemFromTable(t)
   return t[math.random(1, #t)]
 end
 
+-- S click effect (if target is shaman)
+local function spellTargetThing(spellThing, targetThing)
+  spellThing.u.Spell.TargetThingIdx:set(targetThing.ThingNum)
+end
+
+local function _movePersonToPointCallbackChecker(thing, point, time, callback)
+  -- thing died or similar or time run out
+  if (thing == nil or time <= 0) then
+    callback(false)
+    return
+  end
+
+  local distance = get_world_dist_xyz(thing.Pos.D3, util.coord2D_to_coord3D(point))
+  if (distance <= 600) then
+    callback(true)
+    return
+  end
+
+  -- Check again in 12 turns
+  local checkInterval = 12
+  subscribe_ExecuteOnTurn(GetTurn() + checkInterval, function()
+    _movePersonToPointCallbackChecker(thing, point, time - checkInterval, callback)
+  end)
+end
+
+local function commandPersonGoToPoint(thing, point, time, callback)
+  local p = util.to_coord2D(point)
+  command_person_go_to_coord2d(thing, p)
+  subscribe_ExecuteOnTurn(GetTurn()+12, function()
+    _movePersonToPointCallbackChecker(thing, point, time, callback)
+  end)
+end
+
+local function placePlan(coordinates, bldg_model, owner, orientation)
+  if (orientation == nil) then
+    orientation = util.randomItemFromTable({0,1,2,3})
+  end
+
+  local ret = process_shape_map_elements(world_coord2d_to_map_idx(util.to_coord2D(coordinates)), bldg_model, orientation, owner, SHME_MODE_SET_PERM)
+end
+
 -- ty kosjak
 local function tableLength(te)
   local count = 0
@@ -94,6 +135,11 @@ end
 
 util = {}
 util.tableLength = tableLength
+util.spellTargetThing = spellTargetThing
+util.commandPersonGoToPoint = commandPersonGoToPoint
+util.placePlan = placePlan
+
+-- Miscellaneous
 util.randomItemFromTable = randomItemFromTable
 util.clone_Coord2D = clone_Coord2D
 util.clone_Coord3D = clone_Coord3D
