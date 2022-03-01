@@ -37,6 +37,14 @@ include(UTIL_PATH.."/IngameLogger.lua")
 include(UTIL_PATH.."/FrameworkMath.lua")
 include(UTIL_PATH.."/Commands.lua")
 
+-- AI and modules
+include(AI_PATH .."/AI.lua")
+include(AI_PATH .."/BuildPlace.lua")
+
+include(AIMODULES_PATH .."/AIModule.lua")
+include(AIMODULES_PATH .."/AIModuleBuildingPlacer.lua")
+include(AIMODULES_PATH .."/AIModulePopulationManager.lua")
+
 
 -- Other variables
 _gsi = gsi()
