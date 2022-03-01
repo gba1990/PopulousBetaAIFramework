@@ -55,6 +55,16 @@ local function placePlan(coordinates, bldg_model, owner, orientation)
   local ret = process_shape_map_elements(world_coord2d_to_map_idx(util.to_coord2D(coordinates)), bldg_model, orientation, owner, SHME_MODE_SET_PERM)
 end
 
+local function sendPersonToBuild(personThing, shapeThing, treeToHarvest)
+  commands.reset_person_cmds(personThing)
+  local idx = 0
+  if (treeToHarvest ~= nil) then
+    add_persons_command(personThing, commands.cmd_gather_wood(treeToHarvest, true), idx)
+    idx = idx + 1
+  end
+  add_persons_command(personThing, commands.cmd_build(shapeThing), idx)
+end
+
 -- ty kosjak
 local function tableLength(te)
   local count = 0
@@ -132,12 +142,16 @@ local function add_c3D(c1, c2)
   return result
 end
 
+local function mapCellToCoord2D(cellX, cellY)
+  return util.to_coord2D(cellX*512, cellY*512)
+end
 
 util = {}
 util.tableLength = tableLength
 util.spellTargetThing = spellTargetThing
 util.commandPersonGoToPoint = commandPersonGoToPoint
 util.placePlan = placePlan
+util.sendPersonToBuild = sendPersonToBuild
 
 -- Miscellaneous
 util.randomItemFromTable = randomItemFromTable
@@ -150,3 +164,4 @@ util.coord2D_to_coord3D = c2D_to_c3D
 util.to_coord3D = to_c3D
 util.to_coord2D = to_c2D
 util.add_coord3D = add_c3D
+util.mapCellToCoord2D = mapCellToCoord2D

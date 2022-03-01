@@ -4,6 +4,8 @@ FRAMEWORK_PATH = "_fr"
 UTIL_PATH = FRAMEWORK_PATH .. "/" .. "util"
 LEVELS_PATH = FRAMEWORK_PATH .. "/" .. "levels"
 WIP_PATH = FRAMEWORK_PATH .. "/" .. "wip"
+AI_PATH = FRAMEWORK_PATH .. "/" .. "AI"
+AIMODULES_PATH = AI_PATH .. "/" .. "Modules"
 
 -- To have all modules
 import(Module_System)
@@ -33,6 +35,8 @@ include(UTIL_PATH.."/Utils.lua")
 include(UTIL_PATH.."/EventManager.lua")
 include(UTIL_PATH.."/IngameLogger.lua")
 include(UTIL_PATH.."/FrameworkMath.lua")
+include(UTIL_PATH.."/Commands.lua")
+
 
 -- Other variables
 _gsi = gsi()

@@ -47,7 +47,7 @@ end
 local indexes = {}
 indexes["OnTurn"] = 0
 indexes["ExecuteOnTurn"] = 0
-indexes["OnThing"] = 0
+indexes["OnCreateThing"] = 0
 indexes["OnRegenerate"] = 0
 indexes["OnKeyDown"] = 0
 indexes["OnKeyUp"] = 0
@@ -68,7 +68,7 @@ function OnTurn()
 end
 
 local _OnThing_Subscribed = {}
-function OnThing(event) -- TODO: rename to OnCreateThing
+function OnCreateThing(event)
     _processSubscribers(_OnThing_Subscribed, event)
 end
 
@@ -147,7 +147,7 @@ local function updateIndex(key)
     return "E"..idx
 end
     
--- Essential
+-- Global methods
 function subscribe_OnTurn(func)
     local index = updateIndex("OnTurn")
     _OnTurn_Subscribed[index] = func
@@ -164,6 +164,15 @@ function subscribe_ExecuteOnTurn(_turn, _func)
 end
 function unsubscribe_ExecuteOnTurn(idx)
     _ExecuteOnTurn_Subscribed[idx] = nil
+end
+
+function subscribe_OnCreateThing(func)
+    local index = updateIndex("OnCreateThing")
+    _OnThing_Subscribed[index] = func
+    return index
+end
+function unsubscribe_OnCreateThing(idx)
+    _OnThing_Subscribed[idx] = nil
 end
 
 -- TODO: add index to these other methods
