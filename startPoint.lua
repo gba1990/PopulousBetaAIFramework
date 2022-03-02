@@ -44,6 +44,8 @@ include(AI_PATH .."/BuildPlace.lua")
 include(AIMODULES_PATH .."/AIModule.lua")
 include(AIMODULES_PATH .."/AIModuleBuildingPlacer.lua")
 include(AIMODULES_PATH .."/AIModulePopulationManager.lua")
+include(AIMODULES_PATH .."/AIModuleTreeManager.lua")
+include(AIMODULES_PATH .."/AIModuleBuildingManager.lua")
 
 
 -- Other variables
@@ -53,4 +55,27 @@ if (math.pow == nil) then
     math.pow = function (x,y)
         return x^y
     end
+end
+
+function createAI(tribe)
+    local ai = AI:new(nil, tribe)
+
+    local buildPlacer = AIModuleBuildingPlacer:new(nil, ai)
+    local populationManager = AIModulePopulationManager:new(nil, ai)
+    local treeManager = AIModuleTreeManager:new(nil, ai)
+    local buildingManager = AIModuleBuildingManager:new(nil, ai)
+
+    ai:addModule(1, buildPlacer)
+    ai.buildingPlacer = buildPlacer
+    
+    ai:addModule(2, populationManager)
+    ai.populationManager = populationManager
+    
+    ai:addModule(3, treeManager)
+    ai.treeManager = treeManager
+    
+    ai:addModule(4, buildingManager)
+    ai.buildingManager = buildingManager
+
+    return ai
 end

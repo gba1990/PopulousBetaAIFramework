@@ -1,0 +1,139 @@
+AIModuleTreeManager = AIModule:new()
+
+function AIModuleTreeManager:new(o, ai, treeSearchLocations)
+    local o = o or AIModule:new()
+    setmetatable(o, self)
+    self.__index = self
+
+    o.ai = ai
+    o.periodicTreeSearchInterval = 256
+    o.periodicHarvestingInterval = 512
+    o.maxNumberOfHarvesters = 5
+    o.treeSearchLocations = treeSearchLocations or {}
+    o.closeByTrees = {}
+
+    o:enable()
+    return o
+end
+
+function AIModuleTreeManager:getTreesWithWoodInArea(wood, centre, radius)
+    centre = util.to_coord3D(centre)
+    local allTrees = self:getTreesWithWood(#self.closeByTrees, wood)
+    local result = {}
+
+    for k, v in pairs(allTrees) do
+        local isInArea = get_world_dist_xyz(v.Pos.D3, centre) < radius
+        if (isInArea) then
+            table.insert(result, v)
+        end
+    end
+
+    table.sort(result, function(a,b) return get_world_dist_xyz(a.Pos.D3, centre) < get_world_dist_xyz(b.Pos.D3, centre) end)
+    return result
+end
+
+function AIModuleTreeManager:getTreesWithWood(numberOfTrees, wood)
+    local result = {}
+    for k, v in pairs(self.closeByTrees) do
+        if (v.tree ~= nil and v.wood >= wood) then
+            table.insert(result, v.tree)
+        end
+
+        if (#result >= numberOfTrees) then
+            break
+        end
+    end
+    return result
+end
+
+local function searchForTreesInArea(centre, radius)
+    local result = {}
+    centre = util.to_coord3D(centre)
+
+    ProcessGlobalSpecialList(TRIBE_HOSTBOT, WOODLIST, function(__t)
+        if (get_world_dist_xyz(__t.Pos.D3, centre) < radius) then
+            table.insert(result, {tree = __t, wood = __t.u.Scenery.ResourceRemaining})
+        end
+        
+        return true
+    end)
+
+    return result
+end
+
+local function periodicTreeSearch(o)
+    local result = {}
+
+    for k, v in pairs(o.treeSearchLocations) do
+        local t = searchForTreesInArea(v.centre, v.radius)
+        for k, v in pairs(t) do
+            table.insert(result, v)
+        end
+    end
+
+    o.closeByTrees = result
+
+    o.periodicTreeSearchSubscriptionIndex = subscribe_ExecuteOnTurn(GetTurn() + o.periodicTreeSearchInterval, function()
+        periodicTreeSearch(o)
+    end)
+end
+
+function AIModuleTreeManager:dontDoPeriodicTreeSearch()
+    self.periodicTreeSearch = false
+    unsubscribe_OnCreateThing(self.periodicTreeSearchSubscriptionIndex)
+end
+
+function AIModuleTreeManager:doPeriodicTreeSearch()
+    self.periodicTreeSearch = true
+    self.periodicTreeSearchSubscriptionIndex = subscribe_ExecuteOnTurn(GetTurn(), function (thing)
+        periodicTreeSearch(self)
+    end)
+end
+
+local function periodicTreeHarvesting(o)
+    local persons = o.ai.populationManager:getIdlePeople(o.maxNumberOfHarvesters, M_PERSON_BRAVE)
+    local sentIdx = 1
+    
+    for k, v in pairs(o.closeByTrees) do
+        if (v.tree ~= nil and v.wood > 200) then
+            if (#persons == 0 or sentIdx > #persons) then
+                break
+            end
+
+            commands.reset_person_cmds(persons[sentIdx])
+            add_persons_command(persons[sentIdx], commands.cmd_gather_wood(v.tree, false), 0)
+
+            sentIdx = sentIdx + 1
+            v.wood = v.wood - 1
+        end
+    end
+    
+    o.periodicTreeHarvestingSubscriptionIndex = subscribe_ExecuteOnTurn(GetTurn() + o.periodicHarvestingInterval, function()
+        periodicTreeHarvesting(o)
+    end)
+end
+
+function AIModuleTreeManager:dontDoPeriodicTreeHarvesting()
+    self.periodicTreeHarvesting = false
+    unsubscribe_OnCreateThing(self.periodicTreeHarvestingSubscriptionIndex)
+end
+
+function AIModuleTreeManager:doPeriodicTreeHarvesting()
+    self.periodicTreeHarvesting = true
+    self.periodicTreeHarvestingSubscriptionIndex = subscribe_ExecuteOnTurn(GetTurn() + 12, function (thing)
+        periodicTreeHarvesting(self)
+    end)
+end
+
+
+function AIModuleTreeManager:enable()
+    self:setEnabled(true)
+    self:doPeriodicTreeSearch()
+    self:doPeriodicTreeHarvesting()
+end
+
+function AIModuleTreeManager:disable()
+    self:setEnabled(false)
+    self:dontDoPeriodicTreeSearch()
+    self:dontDoPeriodicTreeHarvesting()
+end
