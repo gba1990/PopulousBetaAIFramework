@@ -3,8 +3,6 @@ BuildPlace = {NO_SPECIFIC_PLACE_TURN = nil}
 -- Helper
 local function _planHasBeenFullyBuiltChecker(buildplace, thing)
     if (buildplace == nil or thing == nil) then
-        --logger.msgLog("End: %s", thing)
-        --logger.msgLog("End: %s", buildplace)
         return
     end
 
@@ -22,7 +20,6 @@ local function _planHasBeenFullyBuiltChecker(buildplace, thing)
             return true
         end)
         
-        --logger.msgLog("Found: %s", build)
         -- Call methods
         for k, v in pairs(buildplace.childrenDependantOnBuilt) do
             v(buildplace, build)
@@ -99,8 +96,6 @@ function BuildPlace:place()
     if (self.hasBeenPlaced) then
         return
     end
-
-    --logger.msgLog("Placed at (%s, %s)", self.location.Xpos, self.location.Zpos)
 
     util.placePlan(self.location, self.dwellingType, self.tribe, self.orientation)
     self.hasBeenPlaced = true
