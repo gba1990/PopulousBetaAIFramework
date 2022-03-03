@@ -34,6 +34,9 @@ local function OnPlacedPlanHandler_HarvestAndSendPeople(o, plan)
     for i = 1, #braves, 1 do
         treeThing, treeIndex, bravesSentToThatTree = selectTree(treeIndex, treeThings, bravesSentToThatTree)
         util.sendPersonToBuild(braves[i], plan, treeThing)
+        if (treeThing ~= nil) then
+            o.ai.treeManager:reduceWoodOfTree(treeThing, 100) -- We will cut down 1 wood from that tree
+        end
     end
 end
 

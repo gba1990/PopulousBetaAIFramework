@@ -28,6 +28,17 @@ local function updateWoodInTree(treeEntry)
     return result
 end
 
+function AIModuleTreeManager:reduceWoodOfTree(treeThing, amount)
+    local allTrees = self.closeByTrees
+
+    for k, v in pairs(allTrees) do
+        if (v.tree.ThingNum == treeThing.ThingNum) then
+            v.wood = math.max(v.wood - amount, 0)
+            return
+        end
+    end
+end
+
 function AIModuleTreeManager:getTreesWithWoodInArea(wood, centre, radius)
     centre = util.to_coord3D(centre)
     local allTrees = self:getTreesWithWood(#self.closeByTrees, wood)
@@ -109,7 +120,7 @@ local function periodicTreeHarvesting(o)
     
     for k, v in pairs(o.closeByTrees) do
         v.wood = updateWoodInTree(v).wood
-        if (v.wood > 200) then
+        if (v.wood > 275) then -- 275, not to leave a tree on 1 wood for too long in case it happens
             if (#persons == 0 or sentIdx > #persons) then
                 break
             end
@@ -118,7 +129,7 @@ local function periodicTreeHarvesting(o)
             add_persons_command(persons[sentIdx], commands.cmd_gather_wood(v.tree, false), 0)
             
             sentIdx = sentIdx + 1
-            v.wood = v.wood - 1
+            v.wood = v.wood - 100
         end
     end
     
