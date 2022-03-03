@@ -6,7 +6,7 @@ function AIModuleTreeManager:new(o, ai, treeSearchLocations)
     self.__index = self
 
     o.ai = ai
-    o.periodicTreeSearchInterval = 256
+    o.periodicTreeSearchInterval = 512
     o.periodicHarvestingInterval = 512
     o.maxNumberOfHarvesters = 5
     o.treeSearchLocations = treeSearchLocations or {}
@@ -14,6 +14,18 @@ function AIModuleTreeManager:new(o, ai, treeSearchLocations)
 
     o:enable()
     return o
+end
+
+local function updateWoodInTree(treeEntry)
+    local result = treeEntry
+
+    if (treeEntry.tree == nil) then
+        treeEntry.wood = 0
+    else
+        treeEntry.wood = math.min(treeEntry.wood, treeEntry.tree.u.Scenery.ResourceRemaining)
+    end
+
+    return result
 end
 
 function AIModuleTreeManager:getTreesWithWoodInArea(wood, centre, radius)
@@ -35,7 +47,8 @@ end
 function AIModuleTreeManager:getTreesWithWood(numberOfTrees, wood)
     local result = {}
     for k, v in pairs(self.closeByTrees) do
-        if (v.tree ~= nil and v.wood >= wood) then
+        v.wood = updateWoodInTree(v).wood
+        if (v.wood >= wood) then
             table.insert(result, v.tree)
         end
 
@@ -95,14 +108,15 @@ local function periodicTreeHarvesting(o)
     local sentIdx = 1
     
     for k, v in pairs(o.closeByTrees) do
-        if (v.tree ~= nil and v.wood > 200) then
+        v.wood = updateWoodInTree(v).wood
+        if (v.wood > 200) then
             if (#persons == 0 or sentIdx > #persons) then
                 break
             end
-
+            
             commands.reset_person_cmds(persons[sentIdx])
             add_persons_command(persons[sentIdx], commands.cmd_gather_wood(v.tree, false), 0)
-
+            
             sentIdx = sentIdx + 1
             v.wood = v.wood - 1
         end
