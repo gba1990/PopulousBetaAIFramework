@@ -146,12 +146,21 @@ local function mapCellToCoord2D(cellX, cellY)
   return util.to_coord2D(cellX*512, cellY*512)
 end
 
+local function isPersonInHut(thing)
+  return (TF_BLDG_DWELLER & thing.Flags) > 0 and 
+          is_person_in_drum_tower(thing) == 0 and 
+          is_person_currently_attacking_a_building(thing) == 0 and 
+          is_person_in_training_bldg(thing) == 0 and
+          is_person_in_bldg_training(thing) == 0
+end
+
 util = {}
 util.tableLength = tableLength
 util.spellTargetThing = spellTargetThing
 util.commandPersonGoToPoint = commandPersonGoToPoint
 util.placePlan = placePlan
 util.sendPersonToBuild = sendPersonToBuild
+util.isPersonInHut = isPersonInHut
 
 -- Miscellaneous
 util.randomItemFromTable = randomItemFromTable
