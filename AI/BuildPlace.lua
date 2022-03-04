@@ -6,7 +6,7 @@ local function _planHasBeenFullyBuiltChecker(buildplace, thing)
         return
     end
 
-    -- We no longer have a shape => it has been built
+    -- We no longer have a shape => it has been built or or it has been destroyed
     if (thing.u.Shape == nil) then
         local build = nil
 
@@ -53,6 +53,11 @@ function BuildPlace:new(o, tribe, dwellingType, location, orientation, gameTurnW
     -- Subscribe dependencies to parent's onbuild
     for i = 1, #o.dependencies, 1 do
         o.dependencies[i]:onBuiltSubscribe(function(buildplace, plan)
+            if (plan == nil) then
+                -- Plan was destroyed, or at least, we no longer have a building
+                return
+            end
+
             for i = 1, #o.dependencies, 1 do
                 if (buildplace == o.dependencies[i]) then
                     table.remove(o.dependencies, i)
