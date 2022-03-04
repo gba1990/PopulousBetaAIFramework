@@ -152,12 +152,18 @@ end
 
 
 function AIModuleTreeManager:enable()
+    if (self.isEnabled) then
+        return
+    end
     self:setEnabled(true)
     self:doPeriodicTreeSearch()
     self:doPeriodicTreeHarvesting()
 end
 
 function AIModuleTreeManager:disable()
+    if (not self.isEnabled) then
+        return
+    end
     self:setEnabled(false)
     self:dontDoPeriodicTreeSearch()
     self:dontDoPeriodicTreeHarvesting()

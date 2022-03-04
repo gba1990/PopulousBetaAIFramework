@@ -17,7 +17,7 @@ function AI:addModule(id, module)
 end
 
 function AI:removeModule(id)
-    self.disableModule(id)
+    self.modules[id]:disable()
     self.modules[id] = nil
 end
 
@@ -26,7 +26,7 @@ function AI:enableModule(id)
 end
 
 function AI:disableAI()
-    for k, v in pairs(o.modules) do
+    for k, v in pairs(self.modules) do
         v:disable()
     end
 end

@@ -93,11 +93,17 @@ function AIModuleBuildingManager:doSendPeopleToPlacedPlans()
 end
 
 function AIModuleBuildingManager:enable()
+    if (self.isEnabled) then
+        return
+    end
     self:setEnabled(true)
     self:doSendPeopleToPlacedPlans()
 end
 
 function AIModuleBuildingManager:disable()
+    if (not self.isEnabled) then
+        return
+    end
     self:setEnabled(true)
     self:dontSendPeopleToPlacedPlans()
 end

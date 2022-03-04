@@ -40,6 +40,9 @@ end
 
 
 function AIModule:enable()
+    if (self.isEnabled) then
+        return
+    end
     self:setEnabled(true)
     self.buildCheckIntervalSubscribedIndex = subscribe_ExecuteOnTurn(GetTurn() + 36, function() -- Start placing stuff 3 seconds after enabled
         buildUpdateInterval(self)
@@ -47,6 +50,9 @@ function AIModule:enable()
 end
 
 function AIModuleBuildingPlacer:disable()
+    if (not self.isEnabled) then
+        return
+    end
     self:setEnabled(false)
     unsubscribe_ExecuteOnTurn(self.buildCheckIntervalSubscribedIndex)
 end
