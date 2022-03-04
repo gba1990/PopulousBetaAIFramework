@@ -13,11 +13,11 @@ local function initialiseTable()
 end
 
 local function periodicIdlePeopleChecker(o)
-    o.idlePeople = initialiseTable()
+    o.people = initialiseTable()
 
     ProcessGlobalSpecialList(o.ai:getTribe(), 0, function(thing)
-        if (thing.Type == T_PERSON and thing.Model >= M_PERSON_BRAVE and thing.Model <= M_PERSON_SUPER_WARRIOR and thing.Owner == o.ai:getTribe()) then
-            o:addPersonAsIdle(thing)
+        if (thing.Type == T_PERSON and thing.Model >= M_PERSON_BRAVE and thing.Model <= M_PERSON_SUPER_WARRIOR) then
+            table.insert(o.people[thing.Model], thing)
         end
         return true
     end)
@@ -33,14 +33,16 @@ function AIModulePopulationManager:new(o, ai, gameTurnForInitialCheck)
     self.__index = self
 
     o.ai = ai
-    o.idlePeople = initialiseTable()
+    o.people = initialiseTable()
+    o.pseudoIdlePeople = initialiseTable()
+    o.pseudoIdleTimeout = 720
 
     if (gameTurnForInitialCheck == nil) then
-        gameTurnForInitialCheck = 24
+        gameTurnForInitialCheck = 1
     end
 
     o.checkForIdlePeople = true
-    o.checkForIdlePeopleInterval = 128
+    o.checkForIdlePeopleInterval = 12 -- Actually this checks for new people and removes dead ones
     o.checkForIdlePeopleIntervalSubscriptionIndex = subscribe_ExecuteOnTurn(GetTurn() + gameTurnForInitialCheck + o.checkForIdlePeopleInterval, function()
         periodicIdlePeopleChecker(o)
     end)
@@ -50,7 +52,7 @@ function AIModulePopulationManager:new(o, ai, gameTurnForInitialCheck)
     o.checkForIdlePeopleAtEnableSubscriptionIndex = subscribe_ExecuteOnTurn(GetTurn() + gameTurnForInitialCheck, function()
         ProcessGlobalSpecialList(o.ai:getTribe(), 0, function(thing)
             if (thing.Type == T_PERSON and thing.Model >= M_PERSON_BRAVE and thing.Model <= M_PERSON_SUPER_WARRIOR) then
-                o:addPersonAsIdle(thing)
+                table.insert(o.people[thing.Model], thing)
             end
             return true
         end)
@@ -59,11 +61,11 @@ function AIModulePopulationManager:new(o, ai, gameTurnForInitialCheck)
     return o
 end
 
-local function getPeopleFromTable(t, amount, type, validPersonCheck)
+local function getPeopleFromTable(o, t, amount, type, validPersonCheck)
     local result = {}
     local backup = {}
 
-    for i = #t[type], 1, -1 do
+    for i = 1, #t[type], 1 do
         if (amount == 0) then
             break
         end
@@ -72,30 +74,37 @@ local function getPeopleFromTable(t, amount, type, validPersonCheck)
         local check1, checkBackup = validPersonCheck(thing)
         if (check1) then
             table.insert(result, thing)
-            table.remove(t[type], i)
             amount = amount - 1
         elseif (checkBackup) then
             table.insert(backup, {t = thing, idx = i})
         end
     end
     
-    for i = #backup, 1, -1 do
+    for i = 1, #backup, 1 do
         if (amount == 0) then
             break
         end
 
         table.insert(result, backup[i].t)
-        table.remove(t[type], backup[i].idx)
         amount = amount - 1
     end
 
-    return result, t -- Returns the table of people and the remaining people which were not chosen
+    for k, v in pairs(result) do
+        o:removePersonAsPseudoIdle(v)
+    end
+
+    return result
 end
 
 function AIModulePopulationManager:getIdlePeople(amount, type)
     return self:getPeople(amount, type, function (thing)
-        --- TODO do other checks: person is idle or in hut, if on hut, place on pseudoidle list to select if no enough idle ppl were found
         return thing ~= nil and is_person_available_for_auto_employment(thing) > 0
+    end, function (thing)
+        -- People marked as pseudoidle have a 33% chance to be selected
+        -- (this is to avoid selecting too many people who were doing kinda useful chores)
+        local psudoidle = self:isPersonPseudoIdle(thing) and math.random(0,2) == 0
+        local inHut = util.isPersonInHut(thing) and math.random(0,1) == 0
+        return thing ~= nil and (psudoidle or inHut)
     end)
 end
 
@@ -108,20 +117,75 @@ function AIModulePopulationManager:getPeople(amount, type, criteria1, criteria2)
         return false
     end
 
-    local result, t = getPeopleFromTable(self.idlePeople, amount, type, function(thing)
+    local result = getPeopleFromTable(self, self.people, amount, type, function(thing)
         return criteria1(thing), criteria2(thing)
     end)
-
-    self.idlePeople = t
 
     return result
 end
 
-function AIModulePopulationManager:addPersonAsIdle(thing)
-    table.insert(self.idlePeople[thing.Model], thing)
+function AIModulePopulationManager:isPersonPseudoIdle(thing)
+    if (self.pseudoIdlePeople[thing.Model] == nil) then
+        logger.msgLog("self.pseudoIdlePeople[thing.Model] is %s", self.pseudoIdlePeople[thing.Model])
+        logger.msgLog("For model %s", thing.Model)
+    end
+
+    for k, v in pairs(self.pseudoIdlePeople[thing.Model]) do --- TODO: bad argument for iterator, table expected got nil (happens when people die?)
+        if (v.thingNum == thing.ThingNum and v.timeout > GetTurn()) then
+            return true
+        end
+    end
+    return false
+end
+
+function AIModulePopulationManager:addPersonAsPseudoIdle(personThing, timeout)
+    if (not self:isPersonPseudoIdle(personThing)) then
+        timeout = timeout or self.pseudoIdleTimeout
+        table.insert(self.pseudoIdlePeople[personThing.Model], {thing = personThing, thingNum = personThing.ThingNum, timeout = GetTurn() + timeout})
+    end
+end
+
+function AIModulePopulationManager:removePersonAsPseudoIdle(personThing)
+    for i = 1, #self.pseudoIdlePeople[personThing.Model], 1 do
+        local current = self.pseudoIdlePeople[personThing.Model][i]
+        if (current.thingNum == personThing.ThingNum) then
+            table.remove(self.pseudoIdlePeople[personThing.Model], i)
+            return
+        end
+    end
 end
 
 function AIModulePopulationManager:doNotCheckForIdlePeopleAtEnable()
     self.checkForIdlePeopleAtEnable = false
     unsubscribe_ExecuteOnTurn(self.checkForIdlePeopleAtEnableSubscriptionIndex)
+end
+
+function AIModulePopulationManager:enable()
+    if (self.isEnabled) then
+        return
+    end
+    self:setEnabled(true)
+
+    if (self.checkForIdlePeopleAtEnable) then
+        self.checkForIdlePeopleAtEnableSubscriptionIndex = subscribe_ExecuteOnTurn(GetTurn(), function()
+            ProcessGlobalSpecialList(self.ai:getTribe(), 0, function(thing)
+                if (thing.Type == T_PERSON and thing.Model >= M_PERSON_BRAVE and thing.Model <= M_PERSON_SUPER_WARRIOR) then
+                    table.insert(self.people[thing.Model], thing)
+                end
+                return true
+            end)
+        end)
+    end
+    self.checkForIdlePeopleIntervalSubscriptionIndex = subscribe_ExecuteOnTurn(GetTurn() + self.checkForIdlePeopleInterval, function()
+        periodicIdlePeopleChecker(self)
+    end)
+end
+
+function AIModulePopulationManager:disable()
+    if (not self.isEnabled) then
+        return
+    end
+    self:setEnabled(false)
+    unsubscribe_ExecuteOnTurn(self.checkForIdlePeopleAtEnableSubscriptionIndex)
+    unsubscribe_ExecuteOnTurn(self.checkForIdlePeopleIntervalSubscriptionIndex)
 end

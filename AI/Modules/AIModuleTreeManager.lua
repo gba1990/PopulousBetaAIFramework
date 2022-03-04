@@ -19,7 +19,7 @@ end
 local function updateWoodInTree(treeEntry)
     local result = treeEntry
 
-    if (treeEntry.tree == nil) then
+    if (treeEntry.tree == nil or treeEntry.tree.u.Scenery == nil) then -- scenery is nil if wood pile or tree is dormant (?)
         treeEntry.wood = 0
     else
         treeEntry.wood = math.min(treeEntry.wood, treeEntry.tree.u.Scenery.ResourceRemaining)
@@ -75,7 +75,7 @@ local function searchForTreesInArea(centre, radius)
     centre = util.to_coord3D(centre)
 
     ProcessGlobalSpecialList(TRIBE_HOSTBOT, WOODLIST, function(__t)
-        if (get_world_dist_xyz(__t.Pos.D3, centre) < radius) then
+        if (get_world_dist_xyz(__t.Pos.D3, centre) < radius and __t.u.Scenery ~= nil) then -- scenery is nil if wood pile (?)
             table.insert(result, {tree = __t, wood = __t.u.Scenery.ResourceRemaining})
         end
         
@@ -125,6 +125,7 @@ local function periodicTreeHarvesting(o)
                 break
             end
             
+            o.ai.populationManager:addPersonAsPseudoIdle(persons[sentIdx]) -- So this fella can be interrupted if needed
             commands.reset_person_cmds(persons[sentIdx])
             add_persons_command(persons[sentIdx], commands.cmd_gather_wood(v.tree, false), 0)
             
