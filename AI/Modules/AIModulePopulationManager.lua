@@ -126,12 +126,13 @@ end
 
 function AIModulePopulationManager:isPersonPseudoIdle(thing)
     if (self.pseudoIdlePeople[thing.Model] == nil) then
+        -- Sometimes model is 0, which should not happen, I have an error somewhere, nevertheless, return false here semms to "fix" it
         log(string.format("self.pseudoIdlePeople[thing.Model] is %s", self.pseudoIdlePeople[thing.Model]))
         log(string.format("For model %s", thing.Model))
         return false
     end
 
-    for k, v in pairs(self.pseudoIdlePeople[thing.Model]) do --- TODO: bad argument for iterator, table expected got nil (happens when people die?)
+    for k, v in pairs(self.pseudoIdlePeople[thing.Model]) do --- TODO: bad argument for iterator, table expected got nil (happens when people die? error mentioned above)
         if (v.thingNum == thing.ThingNum and v.timeout > GetTurn()) then
             return true
         end
