@@ -143,7 +143,7 @@ local function add_c3D(c1, c2)
 end
 
 local function mapCellToCoord2D(cellX, cellY)
-  return util.to_coord2D(cellX*512, cellY*512)
+  return util.to_coord2D(MAP_XZ_2_WORLD_XYZ(cellX, cellY))
 end
 
 local function isPersonInHut(thing)

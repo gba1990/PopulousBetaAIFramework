@@ -126,8 +126,9 @@ end
 
 function AIModulePopulationManager:isPersonPseudoIdle(thing)
     if (self.pseudoIdlePeople[thing.Model] == nil) then
-        logger.msgLog("self.pseudoIdlePeople[thing.Model] is %s", self.pseudoIdlePeople[thing.Model])
-        logger.msgLog("For model %s", thing.Model)
+        log(string.format("self.pseudoIdlePeople[thing.Model] is %s", self.pseudoIdlePeople[thing.Model]))
+        log(string.format("For model %s", thing.Model))
+        return false
     end
 
     for k, v in pairs(self.pseudoIdlePeople[thing.Model]) do --- TODO: bad argument for iterator, table expected got nil (happens when people die?)

@@ -122,7 +122,7 @@ local function msgLog(msg, ...)
 end
 
 local function pointLog(coord)
-    table.insert(pointsLogArray, { timestamp = GetTurn(), coordinates = coord, effect = pointEffect})
+    table.insert(pointsLogArray, { timestamp = GetTurn(), coordinates = util.to_coord3D(coord), effect = pointEffect})
 end
 
 
