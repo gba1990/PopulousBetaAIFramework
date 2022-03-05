@@ -5,7 +5,6 @@ local function dismantleTrick(o)
         dismantleTrick(o)
     end)
 
-    logger.msgLog("Dismantling...")
     if (GET_NUM_PEOPLE(o.ai:getTribe()) >= o.dismantleStopOnPopulationOver) then
         return
     end
@@ -51,11 +50,11 @@ local function dismantleTrick(o)
             -- Check, in case it was fully dismantled by accident
             if (v.hut ~= nil and v.hut.u.Bldg ~= nil) then
                 util.markBuildingToDismantle(v.hut, false) -- Unmark as dismantle
-                util.sendPersonToBuild(v.brave, v.hut) --- TODO: do this for all builders of the shape
+                if (v.brave ~= nil) then
+                    util.sendPersonToBuild(v.brave, v.hut) --- TODO: do this for all builders of the shape
+                end
             end
         end)
-        logger.msgLog("a hut")
-        log("Start "..GetTurn())
     end
 
 end
@@ -172,7 +171,7 @@ function AIModuleBuildingManager:new(o, ai, harvestBeforeBuilding)
     o.placedPlans = {} -- {plan, gameTurnPlaced}
     
     o.peoplePerPlanArray = {}
-    o.peoplePerPlanArray[M_BUILDING_TEPEE] = 2
+    o.peoplePerPlanArray[M_BUILDING_TEPEE] = 3
     o.peoplePerPlanArray[M_BUILDING_DRUM_TOWER] = 1
     o.peoplePerPlanArray[M_BUILDING_TEMPLE] = 2
     o.peoplePerPlanArray[M_BUILDING_SPY_TRAIN] = 2
@@ -183,8 +182,8 @@ function AIModuleBuildingManager:new(o, ai, harvestBeforeBuilding)
     o.fallBackPeoplePerPlan = 2
 
     o.behaviourPerPlan = {}
-    o.behaviourPerPlan[M_BUILDING_TEPEE] = OnPlacedPlanHandler_HarvestAndSendPeopleWithPseudoIdleExtraPeople
-    o.behaviourPerPlan[M_BUILDING_DRUM_TOWER] = OnPlacedPlanHandler_HarvestAndSendPeopleWithPseudoIdleExtraPeople
+    o.behaviourPerPlan[M_BUILDING_TEPEE] = OnPlacedPlanHandler_HarvestAndSendPeople
+    o.behaviourPerPlan[M_BUILDING_DRUM_TOWER] = OnPlacedPlanHandler_HarvestAndSendPeople
     o.behaviourPerPlan[M_BUILDING_TEMPLE] = OnPlacedPlanHandler_HarvestAndSendPeople
     o.behaviourPerPlan[M_BUILDING_SPY_TRAIN] = OnPlacedPlanHandler_HarvestAndSendPeople
     o.behaviourPerPlan[M_BUILDING_WARRIOR_TRAIN] = OnPlacedPlanHandler_HarvestAndSendPeople
