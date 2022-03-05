@@ -172,6 +172,21 @@ local function isMarkedAsDismantle(thing)
   return thing.u.Bldg.Flags & TF_BACKWARDS_MOTION > 0
 end
 
+local function isPersonDismantlingBuilding(personThing, buildingThing)
+  if (personThing == nil or buildingThing == nil) then
+    return false
+  end
+
+  local commands = get_thing_curr_cmd_list_ptr(personThing)
+  if (commands ~= nil and commands.CommandType == CMD_DISMANTLE_BUILDING) then
+    local target = commands.u.TMIdxs.TargetIdx:get()
+    if (target ~= nil and buildingThing.ThingNum == target.ThingNum) then
+      return true
+    end
+  end
+  return false
+end
+
 local function getMaxPopulationOfTribe(tribe)
   local result = 5 -- Minimun population on any level
   local player = getPlayer(tribe)
@@ -193,6 +208,7 @@ util.sendPersonToDismantle = sendPersonToDismantle
 util.isPersonInHut = isPersonInHut
 util.markBuildingToDismantle = markBuildingToDismantle
 util.isMarkedAsDismantle = isMarkedAsDismantle
+util.isPersonDismantlingBuilding = isPersonDismantlingBuilding
 util.getMaxPopulationOfTribe = getMaxPopulationOfTribe
 
 -- Miscellaneous

@@ -23,6 +23,7 @@ local function dismantleTrick(o)
         -- We only dismantle small huts, not being dismantled, with a low "new brave time", and low upgrade time
         if (thing.Model == M_BUILDING_TEPEE and not util.isMarkedAsDismantle(thing) 
                 and thing.u.Bldg.SproggingCount < 700 and thing.u.Bldg.UpgradeCount < 700) then
+                --and (thing.u.Bldg.Flags & TF_AFFECTED_BY_FIRE ~= 0)) then -- Affected by fire, to avoid semi built huts to be selected (this seems to give a worse performance on average, weird)
             local dwellers = thing.u.Bldg.Dwellers
             -- We only dismantle huts which already have a brave
             for k, v in pairs(dwellers) do
@@ -49,10 +50,20 @@ local function dismantleTrick(o)
         subscribe_ExecuteOnTurn(GetTurn() + 70, function()
             -- Check, in case it was fully dismantled by accident
             if (v.hut ~= nil and v.hut.u.Bldg ~= nil) then
+                local sentSomeone = false
                 util.markBuildingToDismantle(v.hut, false) -- Unmark as dismantle
-                if (v.brave ~= nil) then
-                    util.sendPersonToBuild(v.brave, v.hut) --- TODO: do this for all builders of the shape
-                end
+                ProcessGlobalSpecialList(TRIBE_BLUE, 0, function(person)
+                    if (util.isPersonDismantlingBuilding(person, v.hut)) then
+                        -- Send everyone who is dismantling this building to build it back
+                        if (sentSomeone) then
+                            commands.reset_person_cmds(person)
+                        else
+                            util.sendPersonToBuild(person, v.hut)
+                            sentSomeone = true
+                        end
+                    end
+                    return true
+                end)
             end
         end)
     end
