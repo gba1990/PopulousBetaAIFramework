@@ -55,6 +55,7 @@ local function placePlan(coordinates, bldg_model, owner, orientation)
   local ret = process_shape_map_elements(world_coord2d_to_map_idx(util.to_coord2D(coordinates)), bldg_model, orientation, owner, SHME_MODE_SET_PERM)
 end
 
+-- War of the gods
 local function sendPersonToBuild(personThing, shapeThing, treeToHarvest)
   commands.reset_person_cmds(personThing)
   local idx = 0
@@ -63,6 +64,11 @@ local function sendPersonToBuild(personThing, shapeThing, treeToHarvest)
     idx = idx + 1
   end
   add_persons_command(personThing, commands.cmd_build(shapeThing), idx)
+end
+
+local function sendPersonToDismantle(personThing, shapeThing)
+  commands.reset_person_cmds(personThing)
+  add_persons_command(personThing, commands.cmd_dismantle(shapeThing), 0)
 end
 
 -- ty kosjak
@@ -154,13 +160,40 @@ local function isPersonInHut(thing)
           is_person_in_bldg_training(thing) == 0
 end
 
+local function markBuildingToDismantle(thing, value)
+  if (value or value == nil) then
+    thing.u.Bldg.Flags = thing.u.Bldg.Flags | TF_BACKWARDS_MOTION
+  else
+    thing.u.Bldg.Flags = thing.u.Bldg.Flags ~ TF_BACKWARDS_MOTION
+  end
+end
+
+local function isMarkedAsDismantle(thing)
+  return thing.u.Bldg.Flags & TF_BACKWARDS_MOTION > 0
+end
+
+local function getMaxPopulationOfTribe(tribe)
+  local result = 5 -- Minimun population on any level
+  local player = getPlayer(tribe)
+  
+  result = result + player.NumBuildingsOfType[M_BUILDING_TEPEE] * 3
+  result = result + player.NumBuildingsOfType[M_BUILDING_TEPEE_2] * 5
+  result = result + player.NumBuildingsOfType[M_BUILDING_TEPEE_3] * 7
+
+  return result
+end
+
 util = {}
 util.tableLength = tableLength
 util.spellTargetThing = spellTargetThing
 util.commandPersonGoToPoint = commandPersonGoToPoint
 util.placePlan = placePlan
 util.sendPersonToBuild = sendPersonToBuild
+util.sendPersonToDismantle = sendPersonToDismantle
 util.isPersonInHut = isPersonInHut
+util.markBuildingToDismantle = markBuildingToDismantle
+util.isMarkedAsDismantle = isMarkedAsDismantle
+util.getMaxPopulationOfTribe = getMaxPopulationOfTribe
 
 -- Miscellaneous
 util.randomItemFromTable = randomItemFromTable

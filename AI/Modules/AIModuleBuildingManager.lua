@@ -1,5 +1,65 @@
 AIModuleBuildingManager = AIModule:new()
 
+local function dismantleTrick(o)
+    o.dismantleSubscriberIndex = subscribe_ExecuteOnTurn(GetTurn() + o.dismantleInterval, function()
+        dismantleTrick(o)
+    end)
+
+    logger.msgLog("Dismantling...")
+    if (GET_NUM_PEOPLE(o.ai:getTribe()) >= o.dismantleStopOnPopulationOver) then
+        return
+    end
+
+    local myTribe = o.ai:getTribe()
+    local maxBuildingsThatCanBeDismantled = math.min(o.dismantleMaxNumberOfHuts, 
+                                        math.floor((util.getMaxPopulationOfTribe(myTribe) - getPlayer(myTribe).NumPeople)/3))
+
+    if (maxBuildingsThatCanBeDismantled <= 0) then
+        return
+    end
+
+    -- Get small huts
+    local huts = {}
+    ProcessGlobalSpecialList(myTribe, BUILDINGLIST, function(thing)
+        -- We only dismantle small huts, not being dismantled, with a low "new brave time", and low upgrade time
+        if (thing.Model == M_BUILDING_TEPEE and not util.isMarkedAsDismantle(thing) 
+                and thing.u.Bldg.SproggingCount < 700 and thing.u.Bldg.UpgradeCount < 700) then
+            local dwellers = thing.u.Bldg.Dwellers
+            -- We only dismantle huts which already have a brave
+            for k, v in pairs(dwellers) do
+                local person = v:get()
+                if (person ~= nil and person.Model == M_PERSON_BRAVE) then
+                    table.insert(huts, {hut = thing, brave = person})
+
+                    maxBuildingsThatCanBeDismantled = maxBuildingsThatCanBeDismantled -1
+                    if (maxBuildingsThatCanBeDismantled <= 0) then
+                        return false
+                    end
+                end
+            end
+        end
+
+        return true
+    end)
+    
+    -- Dismantle all found huts
+    for k, v in pairs(huts) do
+        util.markBuildingToDismantle(v.hut, true)
+        util.sendPersonToDismantle(v.brave, v.hut)
+        -- Rebuild after 5 secs (enough time for them to have been taken down a layer)
+        subscribe_ExecuteOnTurn(GetTurn() + 70, function()
+            -- Check, in case it was fully dismantled by accident
+            if (v.hut ~= nil and v.hut.u.Bldg ~= nil) then
+                util.markBuildingToDismantle(v.hut, false) -- Unmark as dismantle
+                util.sendPersonToBuild(v.brave, v.hut) --- TODO: do this for all builders of the shape
+            end
+        end)
+        logger.msgLog("a hut")
+        log("Start "..GetTurn())
+    end
+
+end
+
 local function selectTree(treeIndex, treeThings, bravesSentToThatTree)
     local candidateTree = treeThings[treeIndex]
     if (candidateTree == nil) then
@@ -132,7 +192,12 @@ function AIModuleBuildingManager:new(o, ai, harvestBeforeBuilding)
     o.behaviourPerPlan[M_BUILDING_BOAT_HUT_1 ] = OnPlacedPlanHandler_HarvestAndSendPeople
     o.behaviourPerPlan[M_BUILDING_AIRSHIP_HUT_1 ] = OnPlacedPlanHandler_HarvestAndSendPeople
     o.fallBackBehaviourPerPlan = OnPlacedPlanHandler_DoNothing
-
+    
+    
+    o.dismantleInterval = 180
+    o.dismantleMaxNumberOfHuts = 3
+    o.dismantleStopOnPopulationOver = 700
+    
     o:enable()
     return o
 end
@@ -161,12 +226,25 @@ function AIModuleBuildingManager:doSendPeopleToPlacedPlans()
     end)
 end
 
+function AIModuleBuildingManager:dontDoDismantleTrick()
+    self.doDismantleTrick = false
+    unsubscribe_OnCreateThing(self.dismantleSubscriberIndex)
+end
+
+function AIModuleBuildingManager:doDismantleTrick()
+    self.doDismantleTrick = true
+    self.dismantleSubscriberIndex = subscribe_ExecuteOnTurn(GetTurn() + self.dismantleInterval, function()
+        dismantleTrick(self)
+    end)
+end
+
 function AIModuleBuildingManager:enable()
     if (self.isEnabled) then
         return
     end
     self:setEnabled(true)
     self:doSendPeopleToPlacedPlans()
+    self:doDismantleTrick()
 end
 
 function AIModuleBuildingManager:disable()
@@ -175,4 +253,5 @@ function AIModuleBuildingManager:disable()
     end
     self:setEnabled(true)
     self:dontSendPeopleToPlacedPlans()
+    self:dontDoDismantleTrick()
 end
