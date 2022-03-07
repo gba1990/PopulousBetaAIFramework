@@ -198,6 +198,22 @@ local function getMaxPopulationOfTribe(tribe)
   return result
 end
 
+local function estimateTimeToChargeOneShot(tribe, spell)
+  local p = getPlayer(tribe)
+  local spellCost = spells_type_info()[spell].Cost
+  local manaUpdateInterval = 4
+  return (spellCost/p.LastManaIncr) * manaUpdateInterval
+end
+
+-- Fisher-Yates shuffle: https://gist.github.com/Uradamus/10323382
+local function shuffle(tbl)
+  for i = #tbl, 2, -1 do
+    local j = math.random(i)
+    tbl[i], tbl[j] = tbl[j], tbl[i]
+  end
+  return tbl
+end
+
 util = {}
 util.tableLength = tableLength
 util.spellTargetThing = spellTargetThing
@@ -210,6 +226,8 @@ util.markBuildingToDismantle = markBuildingToDismantle
 util.isMarkedAsDismantle = isMarkedAsDismantle
 util.isPersonDismantlingBuilding = isPersonDismantlingBuilding
 util.getMaxPopulationOfTribe = getMaxPopulationOfTribe
+util.estimateTimeToChargeOneShot = estimateTimeToChargeOneShot
+util.shuffle = shuffle
 
 -- Miscellaneous
 util.randomItemFromTable = randomItemFromTable
