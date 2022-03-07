@@ -39,7 +39,7 @@ function AIModuleBuildingPlacer:build(buildPlace)
 end
 
 
-function AIModule:enable()
+function AIModuleBuildingPlacer:enable()
     if (self.isEnabled) then
         return
     end
