@@ -39,6 +39,7 @@ include(UTIL_PATH.."/Commands.lua")
 
 -- AI and modules
 include(AI_PATH .."/AI.lua")
+include(AI_PATH .."/HandlerFunctions.lua")
 include(AI_PATH .."/BuildPlace.lua")
 
 include(AIMODULES_PATH .."/AIModule.lua")
@@ -46,6 +47,7 @@ include(AIMODULES_PATH .."/AIModuleBuildingPlacer.lua")
 include(AIMODULES_PATH .."/AIModulePopulationManager.lua")
 include(AIMODULES_PATH .."/AIModuleTreeManager.lua")
 include(AIMODULES_PATH .."/AIModuleBuildingManager.lua")
+include(AIMODULES_PATH .."/AIModuleShaman.lua")
 
 
 -- Other variables
