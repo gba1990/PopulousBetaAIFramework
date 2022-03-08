@@ -29,6 +29,14 @@ local function cmd_dismantle(shape)
     return cmd
 end
 
+local function cmd_goto(coord)
+    coord = util.to_coord2D(coord)
+    local cmd = Commands.new()
+    cmd.CommandType = CMD_GOTO_POINT
+    cmd.u.TargetCoord = coord
+    return cmd
+end
+
 -- From war of the gods (ty Impboy & Kosjak)
 local function reset_person_cmds(thing)
     remove_all_persons_commands(thing)
@@ -40,4 +48,5 @@ commands = {}
 commands.cmd_build = cmd_build
 commands.cmd_dismantle = cmd_dismantle
 commands.cmd_gather_wood = cmd_gather_wood
+commands.cmd_goto = cmd_goto
 commands.reset_person_cmds = reset_person_cmds

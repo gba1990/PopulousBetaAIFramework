@@ -214,6 +214,11 @@ local function shuffle(tbl)
   return tbl
 end
 
+
+local function isShamanCasting(shaman)
+  return shaman.State == S_PERSON_SPELL_TRANCE
+end
+
 util = {}
 util.tableLength = tableLength
 util.spellTargetThing = spellTargetThing
@@ -228,6 +233,7 @@ util.isPersonDismantlingBuilding = isPersonDismantlingBuilding
 util.getMaxPopulationOfTribe = getMaxPopulationOfTribe
 util.estimateTimeToChargeOneShot = estimateTimeToChargeOneShot
 util.shuffle = shuffle
+util.isShamanCasting = isShamanCasting
 
 -- Miscellaneous
 util.randomItemFromTable = randomItemFromTable
