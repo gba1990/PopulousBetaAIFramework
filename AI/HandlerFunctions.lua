@@ -46,7 +46,6 @@ local function AIShamanDodgeController_Default(o)
                     local candidateLocations = {} -- Random possible locations
                     for i = 1, 4, 1 do
                         local candidatePoint = frameworkMath.calculatePosition(myShaman.Pos.D2, angle, moveDistance)
-                        logger.pointLog(candidatePoint)
                         
                         -- Is candidate feasible? (is point land? is point accesible? is height difference low?)
                         local isSea = is_map_point_sea(util.to_coord2D(candidatePoint)) > 0
@@ -131,7 +130,6 @@ local function AIShamanDodgeController_UsingOnCreateThing(o)
                 local candidateLocations = {} -- Random possible locations
                 for i = 1, 4, 1 do
                     local candidatePoint = frameworkMath.calculatePosition(myShaman.Pos.D2, angle, moveDistance)
-                    logger.pointLog(candidatePoint)
                     
                     -- Is candidate feasible? (is point land? is point accesible? is height difference low?)
                     local isSea = is_map_point_sea(util.to_coord2D(candidatePoint)) > 0
