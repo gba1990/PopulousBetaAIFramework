@@ -47,6 +47,14 @@ local function commandPersonGoToPoint(thing, point, time, callback)
   end)
 end
 
+local function commandPersonToPatrol(thing, ...)
+  commands.reset_person_cmds(thing)
+  for i = 1, select('#', ...), 1 do
+    local p = select(i, ...)
+    add_persons_command(thing, commands.cmd_patrol(p), i-1)
+  end
+end
+
 local function placePlan(coordinates, bldg_model, owner, orientation)
   if (orientation == nil) then
     orientation = util.randomItemFromTable({0,1,2,3})
@@ -219,10 +227,49 @@ local function isShamanCasting(shaman)
   return shaman.State == S_PERSON_SPELL_TRANCE
 end
 
+-- Useful to randomly set patrols in an area, making them not to close to the water
+local function randomLandPointSurroundedByLandInArea(center, radius)
+  center = util.to_coord3D(center)
+  local allLandPoints = {}
+  SearchMapCells(CIRCULAR, 0, 0, math.ceil(radius/512), world_coord3d_to_map_idx(center), function(me)
+    local c2 = Coord2D.new()
+    map_ptr_to_world_coord2d(me, c2)
+
+    local isValid = true
+    isValid = isValid and is_map_elem_all_land(me) == 1
+    isValid = isValid and is_building_on_map_cell(world_coord2d_to_map_idx(c2)) == 0
+    isValid = isValid and is_map_cell_obstacle_free(world_coord2d_to_map_idx(c2)) == 1
+    isValid = isValid and are_surround_cells_all_land(world_coord2d_to_map_idx(c2)) == 1
+
+    if (isValid) then
+      table.insert(allLandPoints, c2)
+    end
+
+    return true
+  end)
+  return util.randomItemFromTable(allLandPoints)
+end
+
+local function findPeopleInArea(center, radius, criteria)
+  center = util.to_coord3D(center)
+  local result = {}
+  SearchMapCells(CIRCULAR, 0, 0, math.ceil(radius/512), world_coord3d_to_map_idx(center), function(me)
+    me.MapWhoList:processList(function(t)
+      if (criteria(t)) then
+        table.insert(result, t)
+      end
+      return true
+    end)
+    return true
+  end)
+  return result
+end
+
 util = {}
 util.tableLength = tableLength
 util.spellTargetThing = spellTargetThing
 util.commandPersonGoToPoint = commandPersonGoToPoint
+util.commandPersonToPatrol = commandPersonToPatrol
 util.placePlan = placePlan
 util.sendPersonToBuild = sendPersonToBuild
 util.sendPersonToDismantle = sendPersonToDismantle
@@ -234,6 +281,8 @@ util.getMaxPopulationOfTribe = getMaxPopulationOfTribe
 util.estimateTimeToChargeOneShot = estimateTimeToChargeOneShot
 util.shuffle = shuffle
 util.isShamanCasting = isShamanCasting
+util.randomLandPointSurroundedByLandInArea = randomLandPointSurroundedByLandInArea
+util.findPeopleInArea = findPeopleInArea
 
 -- Miscellaneous
 util.randomItemFromTable = randomItemFromTable

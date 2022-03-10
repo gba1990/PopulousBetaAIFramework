@@ -92,6 +92,24 @@ local function _processIngamePoints()
     _removeTimedoutLogs(pointsLogArray, pointTimeout)
 end
 
+local function logCircle(point, radius, resolution)
+    resolution = resolution or 100
+    logger.pointLog(point) -- The center
+    for i = 0, 2070, resolution do
+        logger.pointLog(frameworkMath.calculatePosition(point, i, radius))
+    end
+end
+
+local function logCellsOfArea(center, worldCordinatesRadius)
+    center = util.to_coord3D(center)
+    SearchMapCells(CIRCULAR, 0, 0, math.ceil(worldCordinatesRadius/512), world_coord3d_to_map_idx(center), function(me)
+        local c2 = Coord2D.new()
+        map_ptr_to_world_coord2d(me, c2)
+        logger.pointLog(c2)
+        return true
+      end)
+end
+
 subscribe_OnFrame(_processIngameMsgLog)
 subscribe_OnTurn(_processIngamePoints)
 
@@ -134,3 +152,5 @@ logger.setMsgDisplayLocationInScreen = setMsgDisplayLocationInScreen
 logger.setShowMouseCoordinates = setShowMouseCoordinates
 logger.msgLog = msgLog
 logger.pointLog = pointLog
+logger.logCircle = logCircle
+logger.logCellsOfArea = logCellsOfArea
