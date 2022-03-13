@@ -45,6 +45,14 @@ local function cmd_patrol(coord)
     return cmd
 end
 
+local function cmd_pray(head)
+    local cmd = Commands.new()
+    cmd.CommandType = CMD_HEAD_PRAY
+    cmd.u.TMIdxs.TargetIdx:set(head.ThingNum)
+    cmd.u.TMIdxs.MapIdx = world_coord2d_to_map_idx(cmd.u.TMIdxs.TargetIdx:get().Pos.D2)
+    return cmd
+end
+
 -- From war of the gods (ty Impboy & Kosjak)
 local function reset_person_cmds(thing)
     remove_all_persons_commands(thing)
@@ -58,4 +66,5 @@ commands.cmd_dismantle = cmd_dismantle
 commands.cmd_gather_wood = cmd_gather_wood
 commands.cmd_goto = cmd_goto
 commands.cmd_patrol = cmd_patrol
+commands.cmd_pray = cmd_pray
 commands.reset_person_cmds = reset_person_cmds

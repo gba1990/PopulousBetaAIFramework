@@ -6,12 +6,37 @@ function GetTurn()
     return getTurn()
 end
 
+-- War of the gods
+function everyPow(a,b)
+  if (GetTurn() % a^b == 0) then
+    return true else return false
+  end
+end
+
+-- War of the gods
+function every2Pow(a)
+  if (GetTurn() % 2^a == 0) then
+    return true else return false
+  end
+end
+
 local function randomItemFromTable(t)
   if (#t == 0) then
     return nil
   end
 
   return t[math.random(1, #t)]
+end
+
+-- War of the gods
+local function tableContains(table, input)
+  for i,v in ipairs(table) do
+    if (v == input) then
+      return true
+    end
+  end
+
+  return false
 end
 
 -- S click effect (if target is shaman)
@@ -267,6 +292,8 @@ end
 
 util = {}
 util.tableLength = tableLength
+util.tableContains = tableContains
+util.doesExist = tableContains
 util.spellTargetThing = spellTargetThing
 util.commandPersonGoToPoint = commandPersonGoToPoint
 util.commandPersonToPatrol = commandPersonToPatrol

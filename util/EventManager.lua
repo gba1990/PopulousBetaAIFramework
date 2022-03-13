@@ -48,6 +48,7 @@ local indexes = {}
 indexes["OnTurn"] = 0
 indexes["ExecuteOnTurn"] = 0
 indexes["OnCreateThing"] = 0
+indexes["OnTrigger"] = 0
 indexes["OnRegenerate"] = 0
 indexes["OnKeyDown"] = 0
 indexes["OnKeyUp"] = 0
@@ -70,6 +71,11 @@ end
 local _OnThing_Subscribed = {}
 function OnCreateThing(event)
     _processSubscribers(_OnThing_Subscribed, event)
+end
+
+local _OnTrigger_Subscribed = {}
+function OnTrigger(trigger)
+    _processSubscribers(_OnTrigger_Subscribed, trigger)
 end
 
 local _OnRegenerate_Subscribed = {}
@@ -173,6 +179,16 @@ function subscribe_OnCreateThing(func)
 end
 function unsubscribe_OnCreateThing(idx)
     _OnThing_Subscribed[idx] = nil
+end
+
+function subscribe_OnTrigger(func)
+    local index = updateIndex("OnTrigger")
+    _OnTrigger_Subscribed[index] = func
+    return index
+end
+
+function unsubscribe_OnTrigger(idx)
+    _OnTrigger_Subscribed[idx] = nil
 end
 
 -- TODO: add index to these other methods

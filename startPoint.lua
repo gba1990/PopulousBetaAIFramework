@@ -31,6 +31,7 @@ import(Module_Level)
 import(Module_Shapes)
 
 -- Utils
+include(UTIL_PATH.."/Functional.lua")
 include(UTIL_PATH.."/Utils.lua")
 include(UTIL_PATH.."/EventManager.lua")
 include(UTIL_PATH.."/IngameLogger.lua")

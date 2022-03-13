@@ -7,6 +7,9 @@ import(Module_DataTypes)
 local INGAME_ANGLE_MAX = 2069
 local INGAME_COORDINATE_MAX = 32768
 
+local function clamp(n, low, high) 
+    return math.min(math.max(n, low), high)
+end 
 
 local function degToIngameAngle(angleInDegrees)
     return angleInDegrees * INGAME_ANGLE_MAX/360
@@ -323,6 +326,7 @@ frameworkMath = {}
 frameworkMath.INGAME_ANGLE_MAX = INGAME_ANGLE_MAX
 frameworkMath.INGAME_COORDINATE_MAX  = INGAME_COORDINATE_MAX 
 
+frameworkMath.clamp = clamp
 frameworkMath.calculatePosition = calculatePosition
 frameworkMath.normalizeVector = normalizeVector
 frameworkMath.orthogonalAngle = orthogonalAngle
