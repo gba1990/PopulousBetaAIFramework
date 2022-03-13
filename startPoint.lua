@@ -6,6 +6,9 @@ LEVELS_PATH = FRAMEWORK_PATH .. "/" .. "levels"
 WIP_PATH = FRAMEWORK_PATH .. "/" .. "wip"
 AI_PATH = FRAMEWORK_PATH .. "/" .. "AI"
 AIMODULES_PATH = AI_PATH .. "/" .. "Modules"
+SHAMAN_BEHAVIOURS_PATH = AIMODULES_PATH .. "/" .. "ShamanFunctionalities/ShamanBehaviours"
+SPELL_MANAGERS_PATH = AIMODULES_PATH .. "/" .. "ShamanFunctionalities/SpellManagers"
+SPELL_SELECTORS_PATH = AIMODULES_PATH .. "/" .. "ShamanFunctionalities/SpellSelectors"
 
 -- To have all modules
 import(Module_System)
@@ -49,6 +52,13 @@ include(AIMODULES_PATH .."/AIModulePopulationManager.lua")
 include(AIMODULES_PATH .."/AIModuleTreeManager.lua")
 include(AIMODULES_PATH .."/AIModuleBuildingManager.lua")
 include(AIMODULES_PATH .."/AIModuleShaman.lua")
+
+-- Shaman
+include(SHAMAN_BEHAVIOURS_PATH .."/AIShamanBehaviour.lua")
+include(SHAMAN_BEHAVIOURS_PATH .."/AIShamanBehaviourDefendArea.lua")
+include(SPELL_MANAGERS_PATH .."/AIShamanSpellManager.lua")
+include(SPELL_MANAGERS_PATH .."/AIShamanSpellManagerBucket.lua")
+include(SPELL_SELECTORS_PATH .."/AIShamanSpellSelector.lua")
 
 
 -- Other variables

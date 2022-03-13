@@ -151,11 +151,12 @@ local function AIShamanDodgeController_UsingOnCreateThing(o)
                 if (finalPosition ~= nil) then
                     local currentCommand = get_thing_curr_cmd_list_ptr(myShaman)
                     command_person_go_to_coord2d(myShaman, util.to_coord2D(finalPosition))
-                    -- And move a bit later, the shaman to its previously intended location
+                    -- And move a bit later the shaman to its previously intended location
                     subscribe_ExecuteOnTurn(GetTurn() + 10, function()
                         if (currentCommand ~= nil and getShaman(myTribe) ~= nil) then
-                            commands.reset_person_cmds(myShaman)
-                            add_persons_command(myShaman, currentCommand, 0)
+                            log(string.format("%s", currentCommand))
+                            commands.reset_person_cmds(getShaman(myTribe))
+                            add_persons_command(getShaman(myTribe), currentCommand, 0) --- TODO do more checks as there is an exception thrown here
                         end
                     end)
                 end
