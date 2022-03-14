@@ -3,7 +3,7 @@ AIShamanSpellManagerBucket = AIShamanSpellManager:new()
 local function initBucketCount()
     local result = {}
     for i = 1, NUM_SPELL_TYPES, 1 do
-        result[i] = 2
+        result[i] = 1
     end
     return result 
 end
@@ -87,6 +87,22 @@ function AIShamanSpellManagerBucket:updateBucketAfterCast(spell)
     self.spellsBucket[spell] = entry
 end
 
+function AIShamanSpellManagerBucket:updateBucketCounts()
+    local result = {}
+    for i = 1, NUM_SPELL_TYPES, 1 do
+        result[i] = math.ceil(util.estimateTimeToChargeOneShot(self.aiModuleShaman.ai:getTribe(), i)/self.bucketMultiplier)
+    end
+
+    self.bucketCount = result
+end
+
+local function updateBucketCountsInvoker(o)
+    o:updateBucketCounts()
+    o.updateBucketCountSubscriberIndex = subscribe_ExecuteOnTurn(GetTurn() + 128, function ()
+        updateBucketCountsInvoker(o)
+    end)
+end
+
 -- Checks
 function AIShamanSpellManagerBucket:checkCastBucket(spell)
     local entry = self.spellsBucket[spell]
@@ -122,6 +138,10 @@ function AIShamanSpellManagerBucket:enable()
             self.spellsBucket[i] = entry
         end
     end)
+    -- Update buckets as population increases/decreases
+    self.updateBucketCountSubscriberIndex = subscribe_ExecuteOnTurn(GetTurn() + 12, function ()
+        updateBucketCountsInvoker(self)
+    end)
     -- AfterCast event
     self.afterCastSubscribeIndex = subscribe_OnCreateThing(function (thing)
         if (thing.Type == T_SPELL and thing.Owner == self.aiModuleShaman.ai:getTribe()) then
@@ -137,5 +157,6 @@ function AIShamanSpellManagerBucket:disable()
     end
     self:setEnabled(false)
     unsubscribe_OnTurn(self.bucketReducerSubscribeIndex)
+    unsubscribe_ExecuteOnTurn(self.updateBucketCountSubscriberIndex)
     unsubscribe_OnCreateThing(self.afterCastSubscribeIndex)
 end
