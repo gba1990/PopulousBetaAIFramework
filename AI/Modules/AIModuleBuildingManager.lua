@@ -174,7 +174,7 @@ end
 
 function AIModuleBuildingManager:dontDoDismantleTrick()
     self.doDismantleTrick = false
-    unsubscribe_OnCreateThing(self.dismantleSubscriberIndex)
+    unsubscribe_ExecuteOnTurn(self.dismantleSubscriberIndex)
 end
 
 function AIModuleBuildingManager:doDismantleTrick()
