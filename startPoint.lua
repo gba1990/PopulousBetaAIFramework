@@ -55,6 +55,8 @@ include(AIMODULES_PATH .."/AIModuleShaman.lua")
 
 -- Shaman
 include(SHAMAN_BEHAVIOURS_PATH .."/AIShamanBehaviour.lua")
+include(SHAMAN_BEHAVIOURS_PATH .."/AIShamanBehaviourIdle.lua")
+include(SHAMAN_BEHAVIOURS_PATH .."/AIShamanBehaviourConvert.lua")
 include(SHAMAN_BEHAVIOURS_PATH .."/AIShamanBehaviourDefendArea.lua")
 include(SPELL_MANAGERS_PATH .."/AIShamanSpellManager.lua")
 include(SPELL_MANAGERS_PATH .."/AIShamanSpellManagerBucket.lua")
@@ -77,6 +79,7 @@ function createAI(tribe)
     local populationManager = AIModulePopulationManager:new(nil, ai)
     local treeManager = AIModuleTreeManager:new(nil, ai)
     local buildingManager = AIModuleBuildingManager:new(nil, ai)
+    local shamanManager = AIModuleShaman:new(nil, ai, {M_SPELL_BLAST, M_SPELL_CONVERT_WILD, M_SPELL_LIGHTNING_BOLT})
 
     ai:addModule(1, buildPlacer)
     ai.buildingPlacer = buildPlacer
@@ -89,6 +92,9 @@ function createAI(tribe)
     
     ai:addModule(4, buildingManager)
     ai.buildingManager = buildingManager
+    
+    ai:addModule(5, shamanManager)
+    ai.shamanManager = shamanManager
 
     return ai
 end
