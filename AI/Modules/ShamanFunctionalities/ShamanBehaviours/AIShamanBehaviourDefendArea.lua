@@ -93,18 +93,6 @@ function AIShamanBehaviourDefendArea:enable()
     self.subcriberIndex = subscribe_ExecuteOnTurn(GetTurn(), function()
         handleBehaviour(self)
     end)
-    self.shamanCastingSubscriberIndex = subscribe_OnTurn(function ()
-        -- Cast spells to enemies in range
-        if (self.aiModuleShaman.spellSelector ~= nil) then
-            local spell = self.aiModuleShaman.spellSelector:selectSpell()
-            if (spell ~= nil) then
-                local spellT = self.aiModuleShaman:castSpell(spell.spell,spell.coordinates)
-                if (spellT ~= nil and spell.target ~= nil) then
-                    util.spellTargetThing(spellT, spell.target)
-                end
-            end
-        end
-    end)
 end
 
 function AIShamanBehaviourDefendArea:disable()
@@ -113,6 +101,5 @@ function AIShamanBehaviourDefendArea:disable()
     end
     self:setEnabled(false)
     unsubscribe_ExecuteOnTurn(self.subcriberIndex)
-    unsubscribe_OnTurn(self.shamanCastingSubscriberIndex)
 end
 

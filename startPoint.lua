@@ -56,6 +56,8 @@ include(AIMODULES_PATH .."/AIModuleShaman.lua")
 -- Shaman
 include(SHAMAN_BEHAVIOURS_PATH .."/AIShamanBehaviour.lua")
 include(SHAMAN_BEHAVIOURS_PATH .."/AIShamanBehaviourIdle.lua")
+include(SHAMAN_BEHAVIOURS_PATH .."/AIShamanBehaviourDodge.lua")
+include(SHAMAN_BEHAVIOURS_PATH .."/AIShamanBehaviourSpellCasting.lua")
 include(SHAMAN_BEHAVIOURS_PATH .."/AIShamanBehaviourConvert.lua")
 include(SHAMAN_BEHAVIOURS_PATH .."/AIShamanBehaviourDefendArea.lua")
 include(SPELL_MANAGERS_PATH .."/AIShamanSpellManager.lua")
@@ -79,7 +81,7 @@ function createAI(tribe)
     local populationManager = AIModulePopulationManager:new(nil, ai)
     local treeManager = AIModuleTreeManager:new(nil, ai)
     local buildingManager = AIModuleBuildingManager:new(nil, ai)
-    local shamanManager = AIModuleShaman:new(nil, ai, {M_SPELL_BLAST, M_SPELL_CONVERT_WILD, M_SPELL_LIGHTNING_BOLT})
+    local shamanManager = AIModuleShaman:new(nil, ai)
 
     ai:addModule(1, buildPlacer)
     ai.buildingPlacer = buildPlacer
@@ -95,6 +97,10 @@ function createAI(tribe)
     
     ai:addModule(5, shamanManager)
     ai.shamanManager = shamanManager
+
+    --shamanManager:setBehaviour("dodge", AIShamanBehaviourDodge:new()) --- TODO enable once it is bug-free
+    shamanManager:setBehaviour("casting", AIShamanBehaviourSpellCasting:new())
+    shamanManager:setBehaviour("core", AIShamanBehaviourIdle:new())
 
     return ai
 end

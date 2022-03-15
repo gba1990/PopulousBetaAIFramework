@@ -6,13 +6,7 @@ function AIModuleShaman:new(o, ai, availableSpells)
     self.__index = self
 
     o.ai = ai
-    o.behaviour = nil
-
-    -- Dodge stuff
-    o.dodgeControllerSubscriptionIndex = nil
-    o.dodgeLastDodgeTurn = 64 -- Turn when the last dodge took place. Can be used to set a gameturn from when dodges can start to happen (here it is set to 64 so CoR has enough time to be created before first dodge)
-    o.dodgePercentChance = 100 -- % of chance to perform a dodge, for example it can increment as the game advances so "ai gets better at dodging" or viceversa
-    o.dodgeIntervalBetweenDodges = 15 -- Once a dodge takes place how long before the next (set to at least 12 or so)
+    o.behaviours = {}
 
     -- Spell manager
     o.castTrackerSubscriptionIndex = nil
@@ -31,14 +25,6 @@ end
 
 -- Basic functionalities and events
 
-function AIModuleShaman:doDodge()
-    --handlerFunctions.AIShamanDodgeController.usingOnCreateThing(self) -- TODO repair bug and enable
-end
-
-function AIModuleShaman:dontDoDodge()
-    --unsubscribe_OnCreateThing(self.dodgeControllerSubscriptionIndex) -- TODO repair bug and enable
-end
-
 function AIModuleShaman:setSpellSelector(selector)
     self.spellSelector = selector
     selector.aiModuleShaman = self
@@ -53,13 +39,15 @@ function AIModuleShaman:setSpellManager(manager)
     manager:enable()
 end
 
-function AIModuleShaman:setBehaviour(aiShamanBehaviour)
-    if (self.aiShamanBehaviour ~= nil) then
-        self.aiShamanBehaviour:disable()
+function AIModuleShaman:setBehaviour(id, aiShamanBehaviour)
+    if (self.behaviours[id] ~= nil) then
+        self.behaviours[id]:disable()
     end
-    self.aiShamanBehaviour = aiShamanBehaviour
-    aiShamanBehaviour.aiModuleShaman = self
-    aiShamanBehaviour:enable()
+    self.behaviours[id] = aiShamanBehaviour
+    if (aiShamanBehaviour ~= nil) then
+        aiShamanBehaviour.aiModuleShaman = self
+        aiShamanBehaviour:enable()
+    end
 end
 
 function AIModuleShaman:enable()
@@ -67,12 +55,12 @@ function AIModuleShaman:enable()
         return
     end
     self:setEnabled(true)
-    self:doDodge()
     if (self.spellManager ~= nil) then
         self.spellManager:enable()
     end
-    if (self.aiShamanBehaviour ~= nil) then
-        self.aiShamanBehaviour:enable()
+
+    for k, v in pairs(self.behaviours) do
+        v:enable()
     end
 
     self.updateSingleShotSpellsSubscriptionIndex = subscribe_OnTrigger(function (t)
@@ -97,13 +85,14 @@ function AIModuleShaman:disable()
         return
     end
     self:setEnabled(false)
-    self:dontDoDodge()
     if (self.spellManager ~= nil) then
         self.spellManager:disable()
     end
-    if (self.aiShamanBehaviour ~= nil) then
-        self.aiShamanBehaviour:disable()
+
+    for k, v in pairs(self.behaviours) do
+        v:disable()
     end
+
     unsubscribe_OnTrigger(self.updateSingleShotSpellsSubscriptionIndex)
 end
 
@@ -131,6 +120,16 @@ function AIModuleShaman:doIHaveSingleShot(spell)
     for k, v in pairs(self.singleShotSpells) do
         if (v.spell == spell) then
             return v.count > 0
+        end
+    end
+    return result
+end
+
+function AIModuleShaman:numberOfSingleShot(spell)
+    local result = 0
+    for k, v in pairs(self.singleShotSpells) do
+        if (v.spell == spell) then
+            return v.count
         end
     end
     return result
