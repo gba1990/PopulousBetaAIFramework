@@ -255,7 +255,7 @@ local function calculateSpellRangeFromPosition(position, spell, isFromTower)
     local height = point_altitude(position.Xpos, position.Zpos)
     local towerIncrement = 0
 
-    local index = math.floor(height/128)
+    local index = frameworkMath.clamp(math.floor(height/128), 0, 7)
     local multiplier = 0.9
     if (isFromTower) then
         local dtIncrease = constants().MedicineManDtRadius
