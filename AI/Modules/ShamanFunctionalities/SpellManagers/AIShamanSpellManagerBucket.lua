@@ -54,7 +54,8 @@ function AIShamanSpellManagerBucket:castSpellAffectingAllRestrictions(spell, loc
         self.aiModuleShaman:removeSingleShotFromSpell(spell) -- Mark the spell as shot
     end
 
-    -- Mana and bucket will be updated on the OnCreateThing, no need to update here
+    -- Bucket will be updated on the OnCreateThing, no need to update here
+    self:updateManaAfterCast(spell)
     return createThing(T_SPELL, spell, self.aiModuleShaman.ai:getTribe(), util.to_coord3D(location), false, false)
 end
 
@@ -146,7 +147,6 @@ function AIShamanSpellManagerBucket:enable()
     self.afterCastSubscribeIndex = subscribe_OnCreateThing(function (thing)
         if (thing.Type == T_SPELL and thing.Owner == self.aiModuleShaman.ai:getTribe()) then
             self:updateBucketAfterCast(thing.Model)
-            self:updateManaAfterCast(thing.Model)
         end
     end)
 end

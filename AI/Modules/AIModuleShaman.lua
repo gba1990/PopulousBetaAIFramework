@@ -63,6 +63,14 @@ function AIModuleShaman:enable()
         v:enable()
     end
 
+    self.updateLastCastTurnSubscriptionIndex = subscribe_OnCreateThing(function (thing)
+        if (thing.Type == T_SPELL and thing.Owner == self.ai:getTribe()) then
+            -- We casted a spell
+            self.lastCastTurn = GetTurn()
+            self._nextPossibleCastTurn = self.lastCastTurn + math.random(self.minimunCastInterval, self.maximunCastInterval)
+        end
+    end)
+
     self.updateSingleShotSpellsSubscriptionIndex = subscribe_OnTrigger(function (t)
         if (t.u.Trigger == nil or t.u.Trigger.TriggeringPlayer ~= self.ai:getTribe()) then
             return
@@ -93,6 +101,7 @@ function AIModuleShaman:disable()
         v:disable()
     end
 
+    unsubscribe_OnCreateThing(self.updateLastCastTurnSubscriptionIndex)
     unsubscribe_OnTrigger(self.updateSingleShotSpellsSubscriptionIndex)
 end
 
@@ -101,8 +110,9 @@ end
 function AIModuleShaman:castSpell(spell, location)
     local result = self.spellManager:castSpell(spell,location)
     if (result ~= nil) then
+        -- This will be overriden by the code executed on the OnCreateThing, but we set it here to avoid casting again before the spell goes off
         self.lastCastTurn = GetTurn()
-        self._nextPossibleCastTurn = self.lastCastTurn + math.random(self.minimunCastInterval, self.maximunCastInterval)
+        self._nextPossibleCastTurn = self.lastCastTurn + self.minimunCastInterval
     end
     return result
 end
