@@ -32,10 +32,10 @@
 local random = math.random
 
 -- table that store functions module
-local functional = {}
+functional = {}
 
-functional._TYPE = 'module'
-functional._NAME = 'functional'
+--functional._TYPE = 'module'
+--functional._NAME = 'functional'
 
 
 -- Function: Generate list of elements
@@ -307,6 +307,6 @@ function functional.replicate(x, y)
 end
 
 -- return module
-return functional
+--return functional
 
 -- end

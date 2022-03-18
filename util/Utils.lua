@@ -39,6 +39,14 @@ local function tableContains(table, input)
   return false
 end
 
+local function objectListToTable(objectList)
+  local result = {}
+  for i = 0, objectList:count() - 1, 1 do
+    table.insert(result, objectList:getNth(i))
+  end
+  return result
+end
+
 -- S click effect (if target is shaman)
 local function spellTargetThing(spellThing, targetThing)
   spellThing.u.Spell.TargetThingIdx:set(targetThing.ThingNum)
@@ -294,6 +302,7 @@ util = {}
 util.tableLength = tableLength
 util.tableContains = tableContains
 util.doesExist = tableContains
+util.objectListToTable = objectListToTable
 util.spellTargetThing = spellTargetThing
 util.commandPersonGoToPoint = commandPersonGoToPoint
 util.commandPersonToPatrol = commandPersonToPatrol
