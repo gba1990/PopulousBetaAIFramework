@@ -201,12 +201,17 @@ local function isPersonInHut(thing)
           is_person_in_bldg_training(thing) == 0
 end
 
+-- value is a boolean, if true or nil the thing will be dismantled, if false it will be unmarked (in other words, will be built)
 local function markBuildingToDismantle(thing, value)
   if (value or value == nil) then
+    -- Mark to dismantle
     thing.u.Bldg.Flags = thing.u.Bldg.Flags | TF_BACKWARDS_MOTION
   else
+    -- Mark to build (If it is already being built, dont toggle, leave it as is)
+    if (thing.u.Bldg.Flags & TF_BACKWARDS_MOTION ~= 0) then
     thing.u.Bldg.Flags = thing.u.Bldg.Flags ~ TF_BACKWARDS_MOTION
   end
+end
 end
 
 local function isMarkedAsDismantle(thing)

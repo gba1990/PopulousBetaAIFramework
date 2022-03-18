@@ -47,12 +47,14 @@ local function dismantleTrick(o)
         util.markBuildingToDismantle(v.hut, true)
         util.sendPersonToDismantle(v.brave, v.hut)
         -- Rebuild after 5 secs (enough time for them to have been taken down a layer)
-        subscribe_ExecuteOnTurn(GetTurn() + 70, function()
+        local subs,turn = nil, GetTurn()
+        subs = subscribe_OnTurn(function()
             -- Check, in case it was fully dismantled by accident
-            if (v.hut ~= nil and v.hut.u.Bldg ~= nil) then
+            if (v.hut ~= nil and v.hut.u.Bldg ~= nil and v.hut.State == S_BUILDING_UNDER_CONSTRUCTION) then
                 local sentSomeone = false
+                unsubscribe_OnTurn(subs)
                 util.markBuildingToDismantle(v.hut, false) -- Unmark as dismantle
-                ProcessGlobalSpecialList(TRIBE_BLUE, 0, function(person)
+                ProcessGlobalSpecialList(myTribe, 0, function(person)
                     if (util.isPersonDismantlingBuilding(person, v.hut)) then
                         -- Send everyone who is dismantling this building to build it back
                         if (sentSomeone) then
@@ -64,6 +66,8 @@ local function dismantleTrick(o)
                     end
                     return true
                 end)
+            elseif (GetTurn() > turn + 100) then
+                unsubscribe_OnTurn(subs) -- It took too long to dismantle, perhaps the building got destroyed or something
             end
         end)
     end
