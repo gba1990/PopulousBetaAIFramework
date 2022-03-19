@@ -1,5 +1,4 @@
 AI = {tribe = nil, modules = nil}
---AI.__index = AI
 
 function AI:new(o, tribe)
     local o = o or {}
@@ -21,13 +20,35 @@ function AI:removeModule(id)
     self.modules[id] = nil
 end
 
+function AI:setModule(id, module)
+    self:disableModule(id)
+    self.modules[id] = module
+    self:enableModule(id)
+end
+
+function AI:getModule(id)
+    return self.modules[id]
+end
+
 function AI:enableModule(id)
-    self.modules[id]:enable()
+    local module = self.modules[id]
+    if (module ~= nil) then
+        module:enable()
+    end
+end
+
+function AI:disableModule(id)
+    local module = self.modules[id]
+    if (module ~= nil) then
+        module:disable()
+    end
 end
 
 function AI:disableAI()
     for k, v in pairs(self.modules) do
-        v:disable()
+        if (v ~= nil) then
+            v:disable()
+        end
     end
 end
 

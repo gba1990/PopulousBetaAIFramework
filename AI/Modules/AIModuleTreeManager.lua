@@ -7,8 +7,6 @@ function AIModuleTreeManager:new(o, ai, treeSearchLocations)
 
     o.ai = ai
     o.periodicTreeSearchInterval = 512
-    o.periodicHarvestingInterval = 512
-    o.maxNumberOfHarvesters = 5
     o.treeSearchLocations = treeSearchLocations or {}
     o.closeByTrees = {}
 
@@ -26,6 +24,12 @@ local function updateWoodInTree(treeEntry)
     end
 
     return result
+end
+
+function AIModuleTreeManager:updateWoodValues()
+    for k, v in pairs(self.closeByTrees) do
+        v.wood = updateWoodInTree(v).wood
+    end
 end
 
 function AIModuleTreeManager:reduceWoodOfTree(treeThing, amount)
@@ -102,63 +106,15 @@ local function periodicTreeSearch(o)
     end)
 end
 
-function AIModuleTreeManager:dontDoPeriodicTreeSearch()
-    self.periodicTreeSearch = false
-    unsubscribe_OnCreateThing(self.periodicTreeSearchSubscriptionIndex)
-end
-
-function AIModuleTreeManager:doPeriodicTreeSearch()
-    self.periodicTreeSearch = true
-    self.periodicTreeSearchSubscriptionIndex = subscribe_ExecuteOnTurn(GetTurn(), function (thing)
-        periodicTreeSearch(self)
-    end)
-end
-
-local function periodicTreeHarvesting(o)
-    local persons = o.ai.populationManager:getIdlePeople(o.maxNumberOfHarvesters, M_PERSON_BRAVE)
-    local sentIdx = 1
-    
-    for k, v in pairs(o.closeByTrees) do
-        v.wood = updateWoodInTree(v).wood
-        if (v.wood > 275) then -- 275, not to leave a tree on 1 wood for too long in case it happens
-            if (#persons == 0 or sentIdx > #persons) then
-                break
-            end
-            
-            o.ai.populationManager:addPersonAsPseudoIdle(persons[sentIdx]) -- So this fella can be interrupted if needed
-            commands.reset_person_cmds(persons[sentIdx])
-            add_persons_command(persons[sentIdx], commands.cmd_gather_wood(v.tree, false), 0)
-            
-            sentIdx = sentIdx + 1
-            v.wood = v.wood - 100
-        end
-    end
-    
-    o.periodicTreeHarvestingSubscriptionIndex = subscribe_ExecuteOnTurn(GetTurn() + o.periodicHarvestingInterval, function()
-        periodicTreeHarvesting(o)
-    end)
-end
-
-function AIModuleTreeManager:dontDoPeriodicTreeHarvesting()
-    self.periodicTreeHarvesting = false
-    unsubscribe_OnCreateThing(self.periodicTreeHarvestingSubscriptionIndex)
-end
-
-function AIModuleTreeManager:doPeriodicTreeHarvesting()
-    self.periodicTreeHarvesting = true
-    self.periodicTreeHarvestingSubscriptionIndex = subscribe_ExecuteOnTurn(GetTurn() + 12, function (thing)
-        periodicTreeHarvesting(self)
-    end)
-end
-
 
 function AIModuleTreeManager:enable()
     if (self.isEnabled) then
         return
     end
     self:setEnabled(true)
-    self:doPeriodicTreeSearch()
-    self:doPeriodicTreeHarvesting()
+    self.periodicTreeSearchSubscriptionIndex = subscribe_ExecuteOnTurn(GetTurn(), function (thing)
+        periodicTreeSearch(self)
+    end)
 end
 
 function AIModuleTreeManager:disable()
@@ -166,6 +122,5 @@ function AIModuleTreeManager:disable()
         return
     end
     self:setEnabled(false)
-    self:dontDoPeriodicTreeSearch()
-    self:dontDoPeriodicTreeHarvesting()
+    unsubscribe_ExecuteOnTurn(self.periodicTreeSearchSubscriptionIndex)
 end

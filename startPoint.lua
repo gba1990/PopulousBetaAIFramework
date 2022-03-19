@@ -50,6 +50,7 @@ include(AIMODULES_PATH .."/AIModule.lua")
 include(AIMODULES_PATH .."/AIModuleBuildingPlacer.lua")
 include(AIMODULES_PATH .."/AIModulePopulationManager.lua")
 include(AIMODULES_PATH .."/AIModuleTreeManager.lua")
+include(AIMODULES_PATH .."/AIModuleTreeHarvester.lua")
 include(AIMODULES_PATH .."/AIModuleBuildingManager.lua")
 include(AIMODULES_PATH .."/AIModuleDismantleTrick.lua")
 include(AIMODULES_PATH .."/AIModuleShaman.lua")
@@ -69,6 +70,11 @@ include(SPELL_SELECTORS_PATH .."/AIShamanSpellSelector.lua")
 -- Other variables
 _gsi = gsi()
 
+-- Identifiers of AI modules, in case a module requires another module, to search for it 
+AI_MODULE_BUILDING_PLACER_ID = "buildingPlacer"
+AI_MODULE_POPULATION_MANAGER_ID = "populationManager"
+AI_MODULE_TREE_MANAGER_ID = "treeManager"
+
 if (math.pow == nil) then
     math.pow = function (x,y)
         return x^y
@@ -84,24 +90,22 @@ function createAI(tribe)
     local buildingManager = AIModuleBuildingManager:new(nil, ai)
     local shamanManager = AIModuleShaman:new(nil, ai)
 
-    ai:addModule(1, buildPlacer)
+    ai:setModule(AI_MODULE_BUILDING_PLACER_ID, buildPlacer)
     ai.buildingPlacer = buildPlacer
     
-    ai:addModule(2, populationManager)
+    ai:setModule(AI_MODULE_POPULATION_MANAGER_ID, populationManager)
     ai.populationManager = populationManager
     
-    ai:addModule(3, treeManager)
+    ai:setModule(AI_MODULE_TREE_MANAGER_ID, treeManager)
     ai.treeManager = treeManager
     
-    ai:addModule(4, buildingManager)
+    ai:setModule("buildingManager", buildingManager)
     ai.buildingManager = buildingManager
     
-    ai:addModule(5, shamanManager)
+    ai:setModule("shamanManager", shamanManager)
     ai.shamanManager = shamanManager
 
-    --shamanManager:setBehaviour("dodge", AIShamanBehaviourDodge:new()) --- TODO enable once it is bug-free
-    shamanManager:setBehaviour("casting", AIShamanBehaviourSpellCasting:new())
-    shamanManager:setBehaviour("core", AIShamanBehaviourIdle:new())
+    ai:setModule("treeHarvester", AIModuleTreeHarvester:new(nil, ai))
 
     return ai
 end
