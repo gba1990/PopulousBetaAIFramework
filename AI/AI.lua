@@ -11,15 +11,6 @@ function AI:new(o, tribe)
     return o
 end
 
-function AI:addModule(id, module)
-    self.modules[id] = module
-end
-
-function AI:removeModule(id)
-    self.modules[id]:disable()
-    self.modules[id] = nil
-end
-
 function AI:setModule(id, module)
     self:disableModule(id)
     self.modules[id] = module

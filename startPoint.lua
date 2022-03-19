@@ -74,6 +74,7 @@ _gsi = gsi()
 AI_MODULE_BUILDING_PLACER_ID = "buildingPlacer"
 AI_MODULE_POPULATION_MANAGER_ID = "populationManager"
 AI_MODULE_TREE_MANAGER_ID = "treeManager"
+AI_MODULE_SHAMAN_MANAGER_ID = "shamanManager"
 
 if (math.pow == nil) then
     math.pow = function (x,y)
@@ -102,10 +103,14 @@ function createAI(tribe)
     ai:setModule("buildingManager", buildingManager)
     ai.buildingManager = buildingManager
     
-    ai:setModule("shamanManager", shamanManager)
+    ai:setModule(AI_MODULE_SHAMAN_MANAGER_ID, shamanManager)
     ai.shamanManager = shamanManager
 
     ai:setModule("treeHarvester", AIModuleTreeHarvester:new(nil, ai))
+
+    --ai:getModule(AI_MODULE_SHAMAN_MANAGER_ID):setBehaviour("dodge", AIShamanBehaviourDodge:new()) --- TODO enable once it is bug-free
+    ai:getModule(AI_MODULE_SHAMAN_MANAGER_ID):setBehaviour("casting", AIShamanBehaviourSpellCasting:new())
+    ai:getModule(AI_MODULE_SHAMAN_MANAGER_ID):setBehaviour("core", AIShamanBehaviourIdle:new())
 
     return ai
 end

@@ -7,7 +7,7 @@ include("_fr/startPoint.lua")
 
 local redAI = AI:new(nil, TRIBE_RED)
 local module = AIModuleShaman:new(nil, redAI, {M_SPELL_BLAST})  -- AI has blast as a spell it can charge
-redAI:addModule(1, module)
+redAI:setModule(1, module)
 redAI.shamanModule = module
 
 -- We determine the area to defend

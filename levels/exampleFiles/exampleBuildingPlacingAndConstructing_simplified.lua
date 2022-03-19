@@ -6,6 +6,7 @@ include("_fr/startPoint.lua")
     - AIModuleBuildingPlacer
     - AIModuleTreeManager
     - AIModulePopulationManager
+    ...
 ]]
 local blueAI = createAI(TRIBE_BLUE)
 

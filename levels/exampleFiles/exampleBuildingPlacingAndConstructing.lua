@@ -31,10 +31,8 @@ buildPlacer:addBuildPlace(hut3)
 
 
 -- We add and enable all modules so they can start working
-BlueAI:addModule(1, buildPlacer)
-BlueAI:addModule(2, populationManager)
-BlueAI:enableModule(1)
-BlueAI:enableModule(2)
+BlueAI:setModule(1, buildPlacer)
+BlueAI:setModule(2, populationManager)
 
 -- This code will ba placed on another place later on, now, it is here so it is seen clearly
 subscribe_OnCreateThing(function (thing)
