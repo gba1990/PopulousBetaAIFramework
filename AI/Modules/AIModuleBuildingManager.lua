@@ -1,80 +1,5 @@
 AIModuleBuildingManager = AIModule:new()
 
-local function dismantleTrick(o)
-    o.dismantleSubscriberIndex = subscribe_ExecuteOnTurn(GetTurn() + o.dismantleInterval, function()
-        dismantleTrick(o)
-    end)
-
-    if (GET_NUM_PEOPLE(o.ai:getTribe()) >= o.dismantleStopOnPopulationOver) then
-        return
-    end
-
-    local myTribe = o.ai:getTribe()
-    local maxBuildingsThatCanBeDismantled = math.min(o.dismantleMaxNumberOfHuts, 
-                                        math.floor((util.getMaxPopulationOfTribe(myTribe) - getPlayer(myTribe).NumPeople)/3))
-
-    if (maxBuildingsThatCanBeDismantled <= 0) then
-        return
-    end
-
-    -- Get small huts
-    local huts = {}
-    ProcessGlobalSpecialList(myTribe, BUILDINGLIST, function(thing)
-        -- We only dismantle small huts, not being dismantled, with a low "new brave time", and low upgrade time
-        if (thing.Model == M_BUILDING_TEPEE and not util.isMarkedAsDismantle(thing) 
-                and thing.u.Bldg.SproggingCount < 700 and thing.u.Bldg.UpgradeCount < 700) then
-                --and (thing.u.Bldg.Flags & TF_AFFECTED_BY_FIRE ~= 0)) then -- Affected by fire, to avoid semi built huts to be selected (this seems to give a worse performance on average, weird)
-            local dwellers = thing.u.Bldg.Dwellers
-            -- We only dismantle huts which already have a brave
-            for k, v in pairs(dwellers) do
-                local person = v:get()
-                if (person ~= nil and person.Model == M_PERSON_BRAVE) then
-                    table.insert(huts, {hut = thing, brave = person})
-
-                    maxBuildingsThatCanBeDismantled = maxBuildingsThatCanBeDismantled -1
-                    if (maxBuildingsThatCanBeDismantled <= 0) then
-                        return false
-                    end
-                end
-            end
-        end
-
-        return true
-    end)
-    
-    -- Dismantle all found huts
-    for k, v in pairs(huts) do
-        util.markBuildingToDismantle(v.hut, true)
-        util.sendPersonToDismantle(v.brave, v.hut)
-        -- Rebuild after 5 secs (enough time for them to have been taken down a layer)
-        local subs,turn = nil, GetTurn()
-        subs = subscribe_OnTurn(function()
-            -- Check, in case it was fully dismantled by accident
-            if (v.hut ~= nil and v.hut.u.Bldg ~= nil and v.hut.State == S_BUILDING_UNDER_CONSTRUCTION) then
-                local sentSomeone = false
-                unsubscribe_OnTurn(subs)
-                util.markBuildingToDismantle(v.hut, false) -- Unmark as dismantle
-                ProcessGlobalSpecialList(myTribe, 0, function(person)
-                    if (util.isPersonDismantlingBuilding(person, v.hut)) then
-                        -- Send everyone who is dismantling this building to build it back
-                        if (sentSomeone) then
-                            commands.reset_person_cmds(person)
-                        else
-                            util.sendPersonToBuild(person, v.hut)
-                            sentSomeone = true
-                        end
-                    end
-                    return true
-                end)
-            elseif (GetTurn() > turn + 100) then
-                unsubscribe_OnTurn(subs) -- It took too long to dismantle, perhaps the building got destroyed or something
-            end
-        end)
-    end
-
-end
-
-
 -- Build "abandoned" plans or broken buildings
 local function sendPeopleToEmptyPlans(o)
     local plans = {}
@@ -83,7 +8,8 @@ local function sendPeopleToEmptyPlans(o)
         local plan = previousPlans[i]
 
         -- TODO If the building is not accesible skip
-        if (plan.plan == nil or plan.plan.u.Shape == nil) then -- If the plan no longer exists, skip (destroyed or finished building)
+        if (plan.plan == nil or plan.plan.u.Shape == nil) then
+            -- If the plan no longer exists, skip (destroyed or finished building)
             goto continue
         end
 
@@ -143,11 +69,6 @@ function AIModuleBuildingManager:new(o, ai, harvestBeforeBuilding)
     o.behaviourPerPlan[M_BUILDING_AIRSHIP_HUT_1 ] = handlerFunctions.OnPlacedPlanHandler.harvestAndSendPeople
     o.fallBackBehaviourPerPlan = handlerFunctions.OnPlacedPlanHandler.doNothing
     
-    
-    o.dismantleInterval = 180
-    o.dismantleMaxNumberOfHuts = 3
-    o.dismantleStopOnPopulationOver = 700
-    
     o:enable()
     return o
 end
@@ -156,7 +77,7 @@ end
 function AIModuleBuildingManager:dontSendPeopleToPlacedPlans()
     self.sendPeopleToPlacedPlans = false
     unsubscribe_OnCreateThing(self.sendPeopleToPlacedPlansSubscriptionIndex)
-    unsubscribe_OnCreateThing(self.sendPeopleToPlacedPlansSubscriptionIndex2)
+    subscribe_ExecuteOnTurn(self.sendPeopleToPlacedPlansSubscriptionIndex2)
 end
 
 function AIModuleBuildingManager:doSendPeopleToPlacedPlans()
@@ -176,25 +97,12 @@ function AIModuleBuildingManager:doSendPeopleToPlacedPlans()
     end)
 end
 
-function AIModuleBuildingManager:dontDoDismantleTrick()
-    self.doDismantleTrick = false
-    unsubscribe_ExecuteOnTurn(self.dismantleSubscriberIndex)
-end
-
-function AIModuleBuildingManager:doDismantleTrick()
-    self.doDismantleTrick = true
-    self.dismantleSubscriberIndex = subscribe_ExecuteOnTurn(GetTurn() + self.dismantleInterval, function()
-        dismantleTrick(self)
-    end)
-end
-
 function AIModuleBuildingManager:enable()
     if (self.isEnabled) then
         return
     end
     self:setEnabled(true)
     self:doSendPeopleToPlacedPlans()
-    self:doDismantleTrick()
 end
 
 function AIModuleBuildingManager:disable()
@@ -203,5 +111,4 @@ function AIModuleBuildingManager:disable()
     end
     self:setEnabled(true)
     self:dontSendPeopleToPlacedPlans()
-    self:dontDoDismantleTrick()
 end
