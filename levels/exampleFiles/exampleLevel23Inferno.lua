@@ -54,14 +54,14 @@ local entries = {
     {centre = MAP_XZ_2_WORLD_XYZ(40, 230), radius = 10000},
     {centre = MAP_XZ_2_WORLD_XYZ(78, 4), radius = 10000},
 }
-table.insert(redAI.treeManager.treeSearchLocations, entries[1])
-table.insert(redAI.treeManager.treeSearchLocations, entries[2])
-table.insert(redAI.treeManager.treeSearchLocations, entries[3])
+table.insert(redAI:getModule(AI_MODULE_TREE_MANAGER_ID).treeSearchLocations, entries[1])
+table.insert(redAI:getModule(AI_MODULE_TREE_MANAGER_ID).treeSearchLocations, entries[2])
+table.insert(redAI:getModule(AI_MODULE_TREE_MANAGER_ID).treeSearchLocations, entries[3])
 
-table.insert(yellowAI.treeManager.treeSearchLocations, 
+table.insert(yellowAI:getModule(AI_MODULE_TREE_MANAGER_ID).treeSearchLocations, 
             {centre = MAP_XZ_2_WORLD_XYZ(166, 74), radius = 30*512})
 
-table.insert(greenAI.treeManager.treeSearchLocations, 
+table.insert(greenAI:getModule(AI_MODULE_TREE_MANAGER_ID).treeSearchLocations, 
             {centre = MAP_XZ_2_WORLD_XYZ(122, 184), radius = 25*512})
 
 

@@ -85,27 +85,11 @@ end
 function createAI(tribe)
     local ai = AI:new(nil, tribe)
 
-    local buildPlacer = AIModuleBuildingPlacer:new(nil, ai)
-    local populationManager = AIModulePopulationManager:new(nil, ai)
-    local treeManager = AIModuleTreeManager:new(nil, ai)
-    local buildingManager = AIModuleBuildingManager:new(nil, ai)
-    local shamanManager = AIModuleShaman:new(nil, ai)
-
-    ai:setModule(AI_MODULE_BUILDING_PLACER_ID, buildPlacer)
-    ai.buildingPlacer = buildPlacer
-    
-    ai:setModule(AI_MODULE_POPULATION_MANAGER_ID, populationManager)
-    ai.populationManager = populationManager
-    
-    ai:setModule(AI_MODULE_TREE_MANAGER_ID, treeManager)
-    ai.treeManager = treeManager
-    
-    ai:setModule("buildingManager", buildingManager)
-    ai.buildingManager = buildingManager
-    
-    ai:setModule(AI_MODULE_SHAMAN_MANAGER_ID, shamanManager)
-    ai.shamanManager = shamanManager
-
+    ai:setModule(AI_MODULE_BUILDING_PLACER_ID, AIModuleBuildingPlacer:new(nil, ai))
+    ai:setModule(AI_MODULE_POPULATION_MANAGER_ID, AIModulePopulationManager:new(nil, ai))
+    ai:setModule(AI_MODULE_TREE_MANAGER_ID, AIModuleTreeManager:new(nil, ai))
+    ai:setModule("buildingManager", AIModuleBuildingManager:new(nil, ai))
+    ai:setModule(AI_MODULE_SHAMAN_MANAGER_ID, AIModuleShaman:new(nil, ai))
     ai:setModule("treeHarvester", AIModuleTreeHarvester:new(nil, ai))
 
     --ai:getModule(AI_MODULE_SHAMAN_MANAGER_ID):setBehaviour("dodge", AIShamanBehaviourDodge:new()) --- TODO enable once it is bug-free

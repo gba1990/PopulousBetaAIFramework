@@ -168,11 +168,12 @@ local function AIShamanDodgeController_UsingOnCreateThing(o)
     end)
 end
 
+--[[
 handlerFunctions.AIShamanDodgeController = {}
 handlerFunctions.AIShamanDodgeController.disabled = AIShamanDodgeController_Disabled
 handlerFunctions.AIShamanDodgeController.default = AIShamanDodgeController_Default
 handlerFunctions.AIShamanDodgeController.usingOnCreateThing = AIShamanDodgeController_UsingOnCreateThing
-
+]]
 
 
 
@@ -198,12 +199,14 @@ local function OnPlacedPlanHandler_DoNothing(o ,plan)
 end
 
 local function OnPlacedPlanHandler_HarvestAndSendPeople(o, plan)
+    local populationManager = o.ai:getModule(AI_MODULE_POPULATION_MANAGER_ID)
+    local treeManager = o.ai:getModule(AI_MODULE_TREE_MANAGER_ID)
     local numBraves = o.peoplePerPlanArray[plan.u.Shape.BldgModel] or o.fallBackPeoplePerPlan
 
-    local braves = o.ai.populationManager:getIdlePeople(numBraves, M_PERSON_BRAVE)
+    local braves = populationManager:getIdlePeople(numBraves, M_PERSON_BRAVE)
     local treeThings = nil
     if (o.harvestBeforeBuilding) then
-        treeThings = o.ai.treeManager:getTreesWithWoodInArea(200, plan.Pos.D3, 10000)
+        treeThings = treeManager:getTreesWithWoodInArea(200, plan.Pos.D3, 10000)
     end
 
     local treeIndex = 1
@@ -213,19 +216,22 @@ local function OnPlacedPlanHandler_HarvestAndSendPeople(o, plan)
         treeThing, treeIndex, bravesSentToThatTree = selectTree(treeIndex, treeThings, bravesSentToThatTree)
         util.sendPersonToBuild(braves[i], plan, treeThing)
         if (treeThing ~= nil) then
-            o.ai.treeManager:reduceWoodOfTree(treeThing, 100) -- We will cut down 1 wood from that tree
+            treeManager:reduceWoodOfTree(treeThing, 100) -- We will cut down 1 wood from that tree
         end
     end
 end
 
 local function OnPlacedPlanHandler_HarvestAndSendPeopleWithPseudoIdleExtraPeople(o, plan)
+    local populationManager = o.ai:getModule(AI_MODULE_POPULATION_MANAGER_ID)
+    local treeManager = o.ai:getModule(AI_MODULE_TREE_MANAGER_ID)
+
     local numBraves = o.peoplePerPlanArray[plan.u.Shape.BldgModel] or o.fallBackPeoplePerPlan
     numBraves = numBraves + o.fallBackPeoplePerPlan
 
-    local braves = o.ai.populationManager:getIdlePeople(numBraves, M_PERSON_BRAVE)
+    local braves = populationManager:getIdlePeople(numBraves, M_PERSON_BRAVE)
     local treeThings = nil
     if (o.harvestBeforeBuilding) then
-        treeThings = o.ai.treeManager:getTreesWithWoodInArea(200, plan.Pos.D3, 10000)
+        treeThings = treeManager:getTreesWithWoodInArea(200, plan.Pos.D3, 10000)
     end
 
     local treeIndex = 1
@@ -235,10 +241,10 @@ local function OnPlacedPlanHandler_HarvestAndSendPeopleWithPseudoIdleExtraPeople
         treeThing, treeIndex, bravesSentToThatTree = selectTree(treeIndex, treeThings, bravesSentToThatTree)
         util.sendPersonToBuild(braves[i], plan, treeThing)
         if (i > numBraves - o.fallBackPeoplePerPlan) then
-            o.ai.populationManager:addPersonAsPseudoIdle(braves[i])
+            populationManager:addPersonAsPseudoIdle(braves[i])
         end
         if (treeThing ~= nil) then
-            o.ai.treeManager:reduceWoodOfTree(treeThing, 100) -- We will cut down 1 wood from that tree
+            treeManager:reduceWoodOfTree(treeThing, 100) -- We will cut down 1 wood from that tree
         end
     end
 end
