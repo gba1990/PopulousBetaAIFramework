@@ -15,6 +15,10 @@ PThing.SpellSet = function (player, spell, input, charge)
 	end
 end
 
+PThing.SpellAvailable = function (player, spell)
+	return _gsi.ThisLevelInfo.PlayerThings[player].SpellsAvailable & (1<<spell) > 0
+end
+
 PThing.BldgSet = function (player, building, input)
   if (input == 0) then
 		_gsi.ThisLevelInfo.PlayerThings[player].BuildingsAvailable = _gsi.ThisLevelInfo.PlayerThings[player].BuildingsAvailable ~ (1<<building);
@@ -23,10 +27,11 @@ PThing.BldgSet = function (player, building, input)
 	end
 end
 
-PThing.GiveShot = function (player, spell, amount)
-  if (amount > 4) then
-    _gsi.ThisLevelInfo.PlayerThings[player].SpellsAvailableOnce[spell] = 4
-  else
-    _gsi.ThisLevelInfo.PlayerThings[player].SpellsAvailableOnce[spell] = _gsi.ThisLevelInfo.PlayerThings[player].SpellsAvailableOnce[spell] + amount
-  end
+PThing.GiveShot = function  (player, spell, amount)
+	local newVal = _gsi.ThisLevelInfo.PlayerThings[player].SpellsAvailableOnce[spell] + amount
+    _gsi.ThisLevelInfo.PlayerThings[player].SpellsAvailableOnce[spell] = frameworkMath.clamp(newVal, 0, _spti[spell].OneOffMaximum)
+end
+
+PThing.NumSingleShot = function (player, spell)
+	return _gsi.ThisLevelInfo.PlayerThings[player].SpellsAvailableOnce[spell]
 end

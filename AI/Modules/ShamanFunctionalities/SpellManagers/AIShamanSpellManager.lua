@@ -16,7 +16,7 @@ function AIShamanSpellManager:castSpell(spell, location)
 end
 
 function AIShamanSpellManager:couldSpellBeCasted(spell)
-    return util.tableContains(self.aiModuleShaman.availableSpells, spell) and self.aiModuleShaman:nextPossibleCastTurn() <= GetTurn()
+    return self.aiModuleShaman:doIHaveSpellAvailable(spell) and self.aiModuleShaman:nextPossibleCastTurn() <= GetTurn()
 end
 
 -- Checks
@@ -42,5 +42,5 @@ function AIShamanSpellManager:checkCastShamanCooldown()
 end
 
 function AIShamanSpellManager:checkCastSpellAvailable(spell)
-    return util.tableContains(self.aiModuleShaman.availableSpells, spell) or self.aiModuleShaman:doIHaveSingleShot(spell)
+    return self.aiModuleShaman:doIHaveSpellAvailable(spell) or self.aiModuleShaman:doIHaveSingleShot(spell)
 end

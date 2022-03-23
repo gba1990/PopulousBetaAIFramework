@@ -35,6 +35,8 @@ import(Module_Shapes)
 
 -- Utils
 include(UTIL_PATH.."/Functional.lua")
+include(UTIL_PATH.."/UtilPThings.lua")
+include(UTIL_PATH.."/UtilRefs.lua")
 include(UTIL_PATH.."/Utils.lua")
 include(UTIL_PATH.."/EventManager.lua")
 include(UTIL_PATH.."/IngameLogger.lua")
@@ -69,6 +71,9 @@ include(SPELL_SELECTORS_PATH .."/AIShamanSpellSelector.lua")
 
 -- Other variables
 _gsi = gsi()
+_sti = scenery_type_info()
+_spti = spells_type_info()
+_c = constants()
 
 -- Identifiers of AI modules, in case a module requires another module, to search for it 
 AI_MODULE_BUILDING_PLACER_ID = "buildingPlacer"

@@ -14,10 +14,13 @@ function AIModuleShaman:new(o, ai, availableSpells)
     o.maximunCastInterval = 25
     o._nextPossibleCastTurn = 64  -- Cannot cast on the first 64 turns
     o.lastCastTurn = 0
-    o.availableSpells = availableSpells or {} -- The list of spells that AI has unlocked
-    o.singleShotSpells = {} -- {spell = , count = } To store shots of spells (can be used to mimic a "charging spell" behaviour)
     o:setSpellManager(AIShamanSpellManagerBucket:new())
     o:setSpellSelector(AIShamanSpellSelector:new())
+    
+    availableSpells = availableSpells or {}
+    for k, v in pairs(availableSpells) do
+        o:setSpellAvailable(v)
+    end
 
     o:enable()
     return o
@@ -70,22 +73,6 @@ function AIModuleShaman:enable()
             self._nextPossibleCastTurn = self.lastCastTurn + math.random(self.minimunCastInterval, self.maximunCastInterval)
         end
     end)
-
-    self.updateSingleShotSpellsSubscriptionIndex = subscribe_OnTrigger(function (t)
-        if (t.u.Trigger == nil or t.u.Trigger.TriggeringPlayer ~= self.ai:getTribe()) then
-            return
-        end
-        for i = 0, #t.u.Trigger.EditorThingIdxs-1, 1 do
-            local entry = t.u.Trigger.EditorThingIdxs[i]
-            local thing = GetThing(entry)
-            if (thing ~= nil) then
-                local disc = thing.u.Discovery
-                if (disc ~= nil and disc.DiscoveryType == 11) then --- TODO It is 11 if it is a spell (should be 1 but it is 11, dunno?)
-                    self:giveSingleShotSpell(disc.DiscoveryModel)
-                end
-            end
-        end
-    end)
 end
 
 function AIModuleShaman:disable()
@@ -102,7 +89,6 @@ function AIModuleShaman:disable()
     end
 
     unsubscribe_OnCreateThing(self.updateLastCastTurnSubscriptionIndex)
-    unsubscribe_OnTrigger(self.updateSingleShotSpellsSubscriptionIndex)
 end
 
 -- Utilities
@@ -125,43 +111,26 @@ function AIModuleShaman:couldSpellBeCasted(spell)
     return self.spellManager:couldSpellBeCasted(spell)
 end
 
+function AIModuleShaman:doIHaveSpellAvailable(spell)
+    return PThing.SpellAvailable(self.ai:getTribe(), spell)
+end
+
 function AIModuleShaman:doIHaveSingleShot(spell)
-    local result = false
-    for k, v in pairs(self.singleShotSpells) do
-        if (v.spell == spell) then
-            return v.count > 0
-        end
-    end
-    return result
+    return PThing.NumSingleShot(self.ai:getTribe(), spell) > 0
 end
 
 function AIModuleShaman:numberOfSingleShot(spell)
-    local result = 0
-    for k, v in pairs(self.singleShotSpells) do
-        if (v.spell == spell) then
-            return v.count
-        end
-    end
-    return result
+    return PThing.NumSingleShot(self.ai:getTribe(), spell)
 end
 
 function AIModuleShaman:removeSingleShotFromSpell(spell)
-    for k, v in pairs(self.singleShotSpells) do
-        if (v.spell == spell) then
-            v.count = v.count - 1
-            break
-        end
-    end
+    PThing.GiveShot(self.ai:getTribe(), spell, -1)
 end
 
 function AIModuleShaman:giveSingleShotSpell(spell)
-    for k, v in pairs(self.singleShotSpells) do
-        if (v.spell == spell) then
-            v.count = v.count + 1
-            return
-        end
-    end
-    
-    local entry = {spell = spell, count = 1}
-    table.insert(self.singleShotSpells, entry)
+    PThing.GiveShot(self.ai:getTribe(), spell, 1)
+end
+
+function AIModuleShaman:setSpellAvailable(spell)
+    PThing.SpellSet(self.ai:getTribe(), spell, 1, 1)
 end
