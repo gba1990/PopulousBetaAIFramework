@@ -34,7 +34,20 @@ function AIShamanSpellManager:checkCastMana(spell)
 end
 
 function AIShamanSpellManager:checkCastShamanStatus()
-    return true ---TODO
+    local result = true
+    local sh = getShaman(self.aiModuleShaman.ai:getTribe())
+    result = result and sh ~= nil
+            and sh.State ~= S_PERSON_ELECTROCUTED
+            and sh.State ~= S_PERSON_SHAMAN_IN_PRISON
+            and sh.State ~= S_PERSON_AOD2_VICTIM
+            and sh.State ~= S_PERSON_IN_WHIRLWIND
+            and sh.State ~= S_PERSON_SPELL_TRANCE
+            and sh.State ~= S_PERSON_DYING
+            and sh.State ~= S_PERSON_DROWNING
+            and (sh.Flags & TF_LOST_CONTROL == 0) -- To prevent casting when AOD kills this shaman
+            and (sh.Flags2 & TF2_THING_IN_AIR == 0)
+            
+    return result
 end
 
 function AIShamanSpellManager:checkCastShamanCooldown()
