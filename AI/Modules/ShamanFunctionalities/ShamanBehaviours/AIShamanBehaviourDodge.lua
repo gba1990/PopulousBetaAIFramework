@@ -80,13 +80,34 @@ local function performDodge(o)
                 -- Set a move command to this location into the shaman's commands, if finalPosition is nil we couldnt find a location
                 if (finalPosition ~= nil) then
                     local currentCommand = get_thing_curr_cmd_list_ptr(myShaman)
-                    command_person_go_to_coord2d(myShaman, util.to_coord2D(finalPosition))
-                    -- And move a bit later the shaman to its previously intended location
-                    subscribe_ExecuteOnTurn(GetTurn() + 10, function()
-                        if (currentCommand ~= nil and getShaman(myTribe) ~= nil) then
-                            commands.reset_person_cmds(getShaman(myTribe))
-                            add_persons_command(getShaman(myTribe), currentCommand, 0)
-                            --- TODO do more checks as there is an exception thrown here
+                    local idx = 0
+                    if (currentCommand ~= nil) then
+                        -- We have a command, we increase the index in order not to replace it
+                        idx = idx + 1
+                    else
+                        -- If shaman is idle, dis-idle her
+                        commands.reset_person_cmds(myShaman)
+                    end
+        
+                    add_persons_command(myShaman, commands.cmd_goto(finalPosition), idx)
+                    set_persons_next_command(myShaman) -- Tell the shaman to swap its current command with that of the dodge
+
+                    -- After some time, delete this action of dodge and complete the original objective
+                    subscribe_ExecuteOnTurn(GetTurn() + math.min(10, o.dodgeIntervalBetweenDodges-2), function ()
+                        myShaman = getShaman(myTribe)
+                        if (myShaman == nil) then
+                            return
+                        end
+        
+                        currentCommand = get_thing_curr_cmd_list_ptr(myShaman)
+                        -- We check that we have not arrived yet to the dodge location
+                        if (currentCommand ~= nil) then
+                            local coords = currentCommand.u.TargetCoord
+                            if (coords ~= nil and coords.Xpos == finalPosition.Xpos and coords.Zpos == finalPosition.Zpos ) then
+                                set_persons_next_command(myShaman)
+                                set_persons_command_complete(myShaman, 1)
+                                -- This has a weird behaviour, in which the shaman appears to be idle, but is actually completing the previous task 
+                            end
                         end
                     end)
                 end

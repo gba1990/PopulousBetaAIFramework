@@ -97,7 +97,7 @@ function createAI(tribe)
     ai:setModule(AI_MODULE_SHAMAN_MANAGER_ID, AIModuleShaman:new(nil, ai))
     ai:setModule("treeHarvester", AIModuleTreeHarvester:new(nil, ai))
 
-    --ai:getModule(AI_MODULE_SHAMAN_MANAGER_ID):setBehaviour("dodge", AIShamanBehaviourDodge:new()) --- TODO enable once it is bug-free
+    ai:getModule(AI_MODULE_SHAMAN_MANAGER_ID):setBehaviour("dodge", AIShamanBehaviourDodge:new())
     ai:getModule(AI_MODULE_SHAMAN_MANAGER_ID):setBehaviour("casting", AIShamanBehaviourSpellCasting:new())
     ai:getModule(AI_MODULE_SHAMAN_MANAGER_ID):setBehaviour("core", AIShamanBehaviourIdle:new())
 
