@@ -246,49 +246,6 @@ local function shuffle(tbl)
   return tbl
 end
 
---- TODO make it work
-local function queueCommand(person, cmd)
-  util.insertCommand(person, cmd)
-end
-
---- TODO make it work
-local function insertCommand(person, cmd, position)
-  position = position or 8
-  local cmds = {}
-  local index = 0
-  local inserted = false
-  while (get_thing_curr_cmd_list_ptr(person) ~= nil) do
-    log(string.format("Was not null, index: %s", index))
-    index = index + 1
-    if (index == position) then
-      log(string.format("Added new"))
-      inserted = true
-      table.insert(cmds, cmd)
-    else
-      table.insert(cmds, get_thing_curr_cmd_list_ptr(person))
-      set_persons_command_complete(person, 1)
-      log(string.format("Next: %s", get_thing_curr_cmd_list_ptr(person)))
-    end
-  end
-
-  if (not inserted) then
-    log(string.format("Added later"))
-    table.insert(cmds, cmd)
-  end
-
-  commands.reset_person_cmds(person)
-  for i = 1, #cmds, 1 do
-    log(string.format("Restoring commands"))
-    local command = cmds[i]
-    add_persons_command(person, command, i-1)
-  end
-end
-
---- TODO make it work
-local function pushCommand(person, cmd)
-    util.insertCommand(person, cmd, 0)
-end
-
 local function isShamanCasting(shaman)
   return shaman.State == S_PERSON_SPELL_TRANCE
 end
