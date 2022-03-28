@@ -48,7 +48,7 @@ end
 
 function AIModuleTreeHarvester:dontDoPeriodicTreeHarvesting()
     self.periodicTreeHarvesting = false
-    subscribe_ExecuteOnTurn(self.periodicTreeHarvestingSubscriptionIndex)
+    unsubscribe_ExecuteOnTurn(self.periodicTreeHarvestingSubscriptionIndex)
 end
 
 function AIModuleTreeHarvester:doPeriodicTreeHarvesting()

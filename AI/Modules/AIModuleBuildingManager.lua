@@ -77,7 +77,7 @@ end
 function AIModuleBuildingManager:dontSendPeopleToPlacedPlans()
     self.sendPeopleToPlacedPlans = false
     unsubscribe_OnCreateThing(self.sendPeopleToPlacedPlansSubscriptionIndex)
-    subscribe_ExecuteOnTurn(self.sendPeopleToPlacedPlansSubscriptionIndex2)
+    unsubscribe_ExecuteOnTurn(self.sendPeopleToPlacedPlansSubscriptionIndex2)
 end
 
 function AIModuleBuildingManager:doSendPeopleToPlacedPlans()
