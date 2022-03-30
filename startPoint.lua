@@ -75,6 +75,11 @@ _sti = scenery_type_info()
 _spti = spells_type_info()
 _c = constants()
 
+M_SPELL_SWARM = M_SPELL_INSECT_PLAGUE
+M_SPELL_TORNADO = M_SPELL_WHIRLWIND
+M_SPELL_LIGHTNING = M_SPELL_LIGHTNING_BOLT
+M_SPELL_CONVERT = M_SPELL_CONVERT_WILD
+
 -- Identifiers of AI modules, in case a module requires another module, to search for it 
 AI_MODULE_BUILDING_PLACER_ID = "buildingPlacer"
 AI_MODULE_POPULATION_MANAGER_ID = "populationManager"
