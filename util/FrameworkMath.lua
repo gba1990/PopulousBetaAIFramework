@@ -325,6 +325,33 @@ local function furthestInlandPointTowardsAngleAccurate(startPoint, angle, maxChe
 
 end
 
+local function isWaterBetweenPoints(startPoint, endPoint, delta)
+    delta = delta or 256
+    startPoint = util.to_coord3D(startPoint)
+    endPoint = util.to_coord3D(endPoint)
+
+    local result = true
+    local angle = frameworkMath.angleBetweenPoints(startPoint, endPoint)
+    local distance = get_world_dist_xyz(startPoint, endPoint)
+    local furthestPoint = startPoint
+
+    for i = 1, distance, math.max(1, delta/2) do
+        local closer = frameworkMath.calculatePosition(startPoint, angle, i)
+        if (point_altitude(closer.Xpos, closer.Zpos) > 1) then
+            furthestPoint = closer
+
+            if (get_world_dist_xyz(furthestPoint, endPoint) <= delta) then
+                result = false
+                break
+            end
+        else
+            break
+        end
+    end
+
+    return result, furthestPoint
+end
+
 frameworkMath = {}
 frameworkMath.INGAME_ANGLE_MAX = INGAME_ANGLE_MAX
 frameworkMath.INGAME_COORDINATE_MAX  = INGAME_COORDINATE_MAX 
@@ -346,4 +373,5 @@ frameworkMath.calculateSpellCastTimeToReachPosition = calculateSpellCastTimeToRe
 frameworkMath.calculateSpellRangeFromPosition = calculateSpellRangeFromPosition
 frameworkMath.furthestInlandPointTowardsAngle = furthestInlandPointTowardsAngle
 frameworkMath.furthestInlandPointTowardsAngleAccurate = furthestInlandPointTowardsAngleAccurate
+frameworkMath.isWaterBetweenPoints = isWaterBetweenPoints
 
