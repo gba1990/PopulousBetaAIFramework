@@ -130,10 +130,10 @@ local function _calculateClosestPointHavingInMindMapBorders(p1, p2)
     table.insert(points, downleft)
     table.insert(points, upleft)
 
-    local bestDistance = frameworkMath.squareWorldDistance(p1, p2)
+    local bestDistance = frameworkMath.squareWorldDistance(util.to_coord3D(p1), util.to_coord3D(p2))
     local bestPoint = p2
     for i = 1, #(points), 1 do
-        local dist = frameworkMath.squareWorldDistance(p1, points[i])
+        local dist = frameworkMath.squareWorldDistance(util.to_coord3D(p1), util.to_coord3D(points[i]))
         if (dist < bestDistance) then
             bestDistance = dist
             bestPoint = (points[i])
@@ -219,14 +219,14 @@ local function calculatePosition(startPosition, angle, distance)
     _angle = math.rad(_angle)
 
     -- a/sin(90) to get the ratio
-    local _ratio = distance/math.sin(90)
+    local _ratio = distance/math.sin(math.rad(90))
 
     local _x = math.sin(_angle) * _ratio
     local _z = math.sin(math.rad(90) - _angle) * _ratio
 
     -- calculate new position
-    local _result = Coord3D.new()
-    if (not (_x ~= _x or _z ~= _z)) then -- NaN check, happens if both points are the same --TODO return nil or something
+    local _result = util.clone_Coord3D(util.to_coord3D(startPosition))
+    if (not (_x ~= _x or _z ~= _z)) then -- NaN check, happens if both points are the same. We return startPosition if that happens
         _result.Xpos = (math.ceil(_x + startPosition.Xpos))
         _result.Zpos = (math.ceil(_z + startPosition.Zpos))
     end
@@ -266,6 +266,8 @@ local function calculateSpellRangeFromPosition(position, spell, isFromTower)
 end
 
 local function furthestInlandPointTowardsAngle(startPoint, angle, maxCheckDistance, distanceStep)
+    startPoint = util.to_coord3D(startPoint)
+
     local result = startPoint
     local distanceAppart = 0
 
@@ -301,6 +303,7 @@ local function furthestInlandPointTowardsAngleAccurate(startPoint, angle, maxChe
     if (minDistanceStep == nil) then
         minDistanceStep = 50
     end
+    startPoint = util.to_coord3D(startPoint)
 
     local STEP_REDUCE_PER_ITERATION = 2
     local result = startPoint

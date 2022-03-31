@@ -45,7 +45,7 @@ local function _movePersonToPointCallbackChecker(thing, point, time, callback)
     return
   end
 
-  local distance = get_world_dist_xyz(thing.Pos.D3, util.coord2D_to_coord3D(point))
+  local distance = get_world_dist_xyz(thing.Pos.D3, util.to_coord3D(point))
   if (distance <= 600) then
     callback(true)
     return
