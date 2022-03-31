@@ -7,6 +7,7 @@ function AIShamanBehaviourConvert:new(o)
     
     o.aiModuleShaman = nil
     o.allWildmen = {}
+    o.wildmanConvertInterval = 64
     
     o:enable()
     return o
@@ -37,7 +38,7 @@ end
 
 local function convertNearWildmenInvoker(o)
     o:convertNearWildmen()
-    o.convertingSubscriberIndex = subscribe_ExecuteOnTurn(GetTurn()+64, function()
+    o.convertingSubscriberIndex = subscribe_ExecuteOnTurn(GetTurn() + o.wildmanConvertInterval, function()
         convertNearWildmenInvoker(o)
     end)
 end
@@ -59,7 +60,7 @@ function AIShamanBehaviourConvert:enable()
             table.insert(self.allWildmen, t)
         end
     end)
-    self.convertingSubscriberIndex = subscribe_ExecuteOnTurn(GetTurn()+64, function()
+    self.convertingSubscriberIndex = subscribe_ExecuteOnTurn(GetTurn() + self.wildmanConvertInterval, function()
         convertNearWildmenInvoker(self)
     end)
 end
