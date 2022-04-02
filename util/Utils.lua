@@ -38,7 +38,7 @@ local function spellTargetThing(spellThing, targetThing)
   spellThing.u.Spell.TargetThingIdx:set(targetThing.ThingNum)
 end
 
-local function _movePersonToPointCallbackChecker(thing, point, time, callback)
+local function _movePersonToPointCallbackChecker(thing, point, time, callback, delta)
   -- thing died or similar or time run out
   if (thing == nil or time <= 0) then
     callback(false)
@@ -46,7 +46,7 @@ local function _movePersonToPointCallbackChecker(thing, point, time, callback)
   end
 
   local distance = get_world_dist_xyz(thing.Pos.D3, util.to_coord3D(point))
-  if (distance <= 600) then
+  if (distance <= delta) then
     callback(true)
     return
   end
@@ -54,15 +54,16 @@ local function _movePersonToPointCallbackChecker(thing, point, time, callback)
   -- Check again in 12 turns
   local checkInterval = 12
   subscribe_ExecuteOnTurn(GetTurn() + checkInterval, function()
-    _movePersonToPointCallbackChecker(thing, point, time - checkInterval, callback)
+    _movePersonToPointCallbackChecker(thing, point, time - checkInterval, callback, delta)
   end)
 end
 
-local function commandPersonGoToPoint(thing, point, time, callback)
+local function commandPersonGoToPoint(thing, point, time, callback, delta)
+  delta = delta or 600
   local p = util.to_coord2D(point)
   command_person_go_to_coord2d(thing, p)
   subscribe_ExecuteOnTurn(GetTurn()+12, function()
-    _movePersonToPointCallbackChecker(thing, point, time, callback)
+    _movePersonToPointCallbackChecker(thing, point, time, callback, delta)
   end)
 end
 
@@ -288,6 +289,24 @@ local function findPeopleInArea(center, radius, criteria)
   return result
 end
 
+local function shamanGotoSpellCastPoint(tribe, coordinates)
+  local shaman = getShaman(tribe)
+  if (shaman == nil) then
+    return
+  end
+
+  command_person_go_to_coord2d(shaman, util.to_coord2D(coordinates))
+  local idx = subscribe_ExecuteOnTurn(GetTurn(), function ()
+    local shaman = getShaman(tribe)
+    if (shaman ~= nil) then
+      shaman.State = S_PERSON_GOTO_SPELL_CAST_POINT
+      shaman.SubState = 0
+    end
+  end)
+
+  return idx 
+end
+
 util = {}
 util.tableLength = tableLength
 util.tableContains = tableContains
@@ -309,6 +328,7 @@ util.shuffle = shuffle
 util.isShamanCasting = isShamanCasting
 util.randomLandPointSurroundedByLandInArea = randomLandPointSurroundedByLandInArea
 util.findPeopleInArea = findPeopleInArea
+util.shamanGotoSpellCastPoint = shamanGotoSpellCastPoint
 
 -- Miscellaneous
 util.randomItemFromTable = randomItemFromTable
