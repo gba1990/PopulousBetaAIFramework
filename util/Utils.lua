@@ -11,7 +11,8 @@ local function randomItemFromTable(t)
     return nil
   end
 
-  return t[math.random(1, #t)]
+  local idx = math.random(1, #t)
+  return t[idx], idx
 end
 
 -- War of the gods

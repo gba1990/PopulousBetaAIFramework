@@ -9,6 +9,7 @@ AIMODULES_PATH = AI_PATH .. "/" .. "Modules"
 SHAMAN_BEHAVIOURS_PATH = AIMODULES_PATH .. "/" .. "ShamanFunctionalities/ShamanBehaviours"
 SPELL_MANAGERS_PATH = AIMODULES_PATH .. "/" .. "ShamanFunctionalities/SpellManagers"
 SPELL_SELECTORS_PATH = AIMODULES_PATH .. "/" .. "ShamanFunctionalities/SpellSelectors"
+CHEAT_MODULES_PATH = AIMODULES_PATH .. "/" .. "CheatModules"
 
 -- To have all modules
 import(Module_System)
@@ -71,6 +72,10 @@ include(SPELL_MANAGERS_PATH .."/AIShamanSpellManager.lua")
 include(SPELL_MANAGERS_PATH .."/AIShamanSpellManagerBucket.lua")
 include(SPELL_SELECTORS_PATH .."/AIShamanSpellSelector.lua")
 
+-- Cheat Modules
+include(CHEAT_MODULES_PATH .."/AIModuleIntervalCheat.lua")
+include(CHEAT_MODULES_PATH .."/AIModuleCheatIncreaseSprog.lua")
+include(CHEAT_MODULES_PATH .."/AIModuleCheatIncreaseUpgrade.lua")
 
 -- Other variables
 _gsi = gsi()
