@@ -76,6 +76,8 @@ include(SPELL_SELECTORS_PATH .."/AIShamanSpellSelector.lua")
 include(CHEAT_MODULES_PATH .."/AIModuleIntervalCheat.lua")
 include(CHEAT_MODULES_PATH .."/AIModuleCheatIncreaseSprog.lua")
 include(CHEAT_MODULES_PATH .."/AIModuleCheatIncreaseUpgrade.lua")
+include(CHEAT_MODULES_PATH .."/AIModuleCheatIncreaseMana.lua")
+include(CHEAT_MODULES_PATH .."/AIModuleCheatGiveMana.lua")
 
 -- Other variables
 _gsi = gsi()
