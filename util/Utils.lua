@@ -308,6 +308,31 @@ local function shamanGotoSpellCastPoint(tribe, coordinates)
   return idx 
 end
 
+local function setSprogFlag(thing)
+  thing.u.Bldg.Flags = thing.u.Bldg.Flags | BF_DO_A_SPROGG
+end
+
+local function hutForceSprog(thing)
+  -- Sprogging only processed every 4 turns, with and offset depending on hut model
+  local multiple = 0
+  multiple = (GetTurn()+3) + 4 - 1; -- We consider we are 3 turns ahead from now (if this turn would be a valid one, we would execute the stuff 1 turn late)
+  multiple = multiple - (multiple % 4);
+  
+  if (thing.Model == M_BUILDING_TEPEE) then
+    multiple = multiple - 1
+  elseif (thing.Model == M_BUILDING_TEPEE_2) then
+    multiple = multiple - 2
+  elseif (thing.Model == M_BUILDING_TEPEE_3) then
+    multiple = multiple - 2
+  end
+  subscribe_ExecuteOnTurn(multiple, function ()
+    if (thing ~= nil and thing.u.Bldg ~= nil) then
+      util.setSprogFlag(GetThing(thing.ThingNum))
+      logger.msgLog("Sprogg, %s . %s", getTurn(), multiple)
+    end
+  end)
+end
+
 util = {}
 util.tableLength = tableLength
 util.tableContains = tableContains
@@ -330,6 +355,8 @@ util.isShamanCasting = isShamanCasting
 util.randomLandPointSurroundedByLandInArea = randomLandPointSurroundedByLandInArea
 util.findPeopleInArea = findPeopleInArea
 util.shamanGotoSpellCastPoint = shamanGotoSpellCastPoint
+util.setSprogFlag = setSprogFlag
+util.hutForceSprog = hutForceSprog
 
 -- Miscellaneous
 util.randomItemFromTable = randomItemFromTable
