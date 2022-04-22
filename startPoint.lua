@@ -78,6 +78,7 @@ include(CHEAT_MODULES_PATH .."/AIModuleCheatIncreaseSprog.lua")
 include(CHEAT_MODULES_PATH .."/AIModuleCheatIncreaseUpgrade.lua")
 include(CHEAT_MODULES_PATH .."/AIModuleCheatIncreaseMana.lua")
 include(CHEAT_MODULES_PATH .."/AIModuleCheatGiveMana.lua")
+include(CHEAT_MODULES_PATH .."/AIModuleCheatAutoSprog.lua")
 
 -- Other variables
 _gsi = gsi()

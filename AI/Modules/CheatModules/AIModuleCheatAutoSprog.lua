@@ -35,7 +35,6 @@ function AIModuleCheatAutoSprog:doCheat()
         end
         return true
     end)
-    logger.msgLog("Valid: %s", #validThings)
 
     local sprogsMade = self.numberOfBuildings
     while (#validThings ~= 0 and sprogsMade ~= 0) do

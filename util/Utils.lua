@@ -328,7 +328,6 @@ local function hutForceSprog(thing)
   subscribe_ExecuteOnTurn(multiple, function ()
     if (thing ~= nil and thing.u.Bldg ~= nil) then
       util.setSprogFlag(GetThing(thing.ThingNum))
-      logger.msgLog("Sprogg, %s . %s", getTurn(), multiple)
     end
   end)
 end
