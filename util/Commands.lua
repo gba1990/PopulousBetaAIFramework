@@ -53,6 +53,13 @@ local function cmd_pray(head)
     return cmd
 end
 
+local function cmd_go_in_bldg(bldg)
+    local cmd = Commands.new()
+    cmd.CommandType = CMD_GO_IN_BLDG
+    cmd.u.TargetIdx:set(bldg.ThingNum)
+    return cmd
+end
+
 -- From war of the gods (ty Impboy & Kosjak)
 local function reset_person_cmds(thing)
     remove_all_persons_commands(thing)
@@ -67,4 +74,5 @@ commands.cmd_gather_wood = cmd_gather_wood
 commands.cmd_goto = cmd_goto
 commands.cmd_patrol = cmd_patrol
 commands.cmd_pray = cmd_pray
+commands.cmd_go_in_bldg =cmd_go_in_bldg
 commands.reset_person_cmds = reset_person_cmds

@@ -59,6 +59,7 @@ include(AIMODULES_PATH .."/AIModuleTreeHarvester.lua")
 include(AIMODULES_PATH .."/AIModuleBuildingManager.lua")
 include(AIMODULES_PATH .."/AIModuleDismantleTrick.lua")
 include(AIMODULES_PATH .."/AIModuleShaman.lua")
+include(AIMODULES_PATH .."/AIModulePopulateDrumTowers.lua")
 
 -- Shaman
 include(SHAMAN_BEHAVIOURS_PATH .."/AIShamanBehaviour.lua")
