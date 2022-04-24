@@ -18,7 +18,7 @@ function AIModuleCheatAutoSprog:new(o, ai, numberOfBuildings)
         return t ~= nil 
                 and util.tableContains(o.affectedModels, t.Model) 
                 and t.u.Bldg ~= nil 
-                and t.State ~= S_BUILDING_UNDER_CONSTRUCTION 
+                and t.State == S_BUILDING_STAND
                 and t.u.Bldg.SproggingCount > 100 -- So builds that have just sprogged wont do it again
     end
 

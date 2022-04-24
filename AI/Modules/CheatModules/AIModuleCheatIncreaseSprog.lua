@@ -16,7 +16,7 @@ function AIModuleCheatIncreaseSprog:new(o, ai)
         return t ~= nil 
                 and util.tableContains(o.affectedModels, t.Model) 
                 and t.u.Bldg ~= nil 
-                and t.State ~= S_BUILDING_UNDER_CONSTRUCTION 
+                and t.State == S_BUILDING_STAND
     end
 
     o:enable()

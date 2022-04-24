@@ -38,10 +38,15 @@ local function dismantleTrick(o)
 
     local huts = {}
     ProcessGlobalSpecialList(myTribe, BUILDINGLIST, function(thing)
+
         -- Check if the building is feasible
-        if (util.tableContains(o.modelsToCheckForDismantle, thing.Model) and not util.isMarkedAsDismantle(thing) 
-                and thing.u.Bldg.SproggingCount < o.sproggingCountThreshold and thing.u.Bldg.UpgradeCount < o.upgradeCountThreshold) then
-                --and (thing.u.Bldg.Flags & TF_AFFECTED_BY_FIRE ~= 0)) then -- Affected by fire, to avoid semi built huts to be selected (this seems to give a worse performance on average, weird)
+        if (util.tableContains(o.modelsToCheckForDismantle, thing.Model)
+                and thing.State == S_BUILDING_STAND
+                and not util.isMarkedAsDismantle(thing) 
+                and thing.u.Bldg.SproggingCount < o.sproggingCountThreshold 
+                and thing.u.Bldg.UpgradeCount < o.upgradeCountThreshold
+            ) then
+            
             local dwellers = thing.u.Bldg.Dwellers
             -- We only dismantle huts which already have a brave
             for k, v in pairs(dwellers) do
