@@ -1,11 +1,10 @@
 AIModule = {}
 
-function AIModule:new(o, ai)
-    local o = o or {}
+function AIModule:new()
+    local o = {}
     setmetatable(o, self)
     self.__index = self
     
-    o.ai = ai
     o.isEnabled = false
 
     return o

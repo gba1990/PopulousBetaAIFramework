@@ -38,12 +38,11 @@ local function sendPeopleToEmptyPlans(o)
 end
 
 -- Class
-function AIModuleBuildingManager:new(o, ai, harvestBeforeBuilding)
-    local o = o or AIModule:new()
+function AIModuleBuildingManager:new(harvestBeforeBuilding)
+    local o = AIModule:new()
     setmetatable(o, self)
     self.__index = self
 
-    o.ai = ai
     o.harvestBeforeBuilding = harvestBeforeBuilding or true
     o.placedPlans = {} -- {plan, gameTurnPlaced}
     
@@ -69,7 +68,6 @@ function AIModuleBuildingManager:new(o, ai, harvestBeforeBuilding)
     o.behaviourPerPlan[M_BUILDING_AIRSHIP_HUT_1 ] = handlerFunctions.OnPlacedPlanHandler.harvestAndSendPeople
     o.fallBackBehaviourPerPlan = handlerFunctions.OnPlacedPlanHandler.doNothing
     
-    o:enable()
     return o
 end
 

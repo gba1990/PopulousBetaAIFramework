@@ -3,7 +3,7 @@
 include("_fr/startPoint.lua")
 
 local tribe = 0 -- Tribe that will perform the expansion
-local ai = AI:new(nil, tribe)
+local ai = AI:new(tribe)
 
 -- We define the expansion points
 local expansionPoints = {
@@ -24,7 +24,7 @@ expansionPoints[3].numberOfLBs = 3
 
 expansionPoints[7].targetCoordinate = MAP_XZ_2_WORLD_XYZ(120,216)
 
-local sh = AIModuleShaman:new(nil, ai)
+local sh = AIModuleShaman:new()
 ai:setModule(AI_MODULE_SHAMAN_MANAGER_ID, sh)
 
 subscribe_ExecuteOnTurn(64, function ()

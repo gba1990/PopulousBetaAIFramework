@@ -1,11 +1,10 @@
 AIModuleShaman = AIModule:new()
 
-function AIModuleShaman:new(o, ai, availableSpells)
-    local o = o or AIModule:new()
+function AIModuleShaman:new(availableSpells)
+    local o = AIModule:new()
     setmetatable(o, self)
     self.__index = self
 
-    o.ai = ai
     o.behaviours = {}
 
     -- Spell manager
@@ -22,7 +21,6 @@ function AIModuleShaman:new(o, ai, availableSpells)
         o:setSpellAvailable(v)
     end
 
-    o:enable()
     return o
 end
 

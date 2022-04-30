@@ -11,16 +11,13 @@ local function buildUpdateInterval(o)
     end)
 end
 
-function AIModuleBuildingPlacer:new(o, ai)
-    local o = o or AIModule:new()
+function AIModuleBuildingPlacer:new()
+    local o = AIModule:new()
     setmetatable(o, self)
     self.__index = self
 
-    o.ai = ai
     o.buildingsLocations = {}
-
     o.buildCheckInterval = 64
-    o:enable()
 
     return o
 end

@@ -1,16 +1,14 @@
 AIModuleTreeManager = AIModule:new()
 
-function AIModuleTreeManager:new(o, ai, treeSearchLocations)
-    local o = o or AIModule:new()
+function AIModuleTreeManager:new(treeSearchLocations)
+    local o = AIModule:new()
     setmetatable(o, self)
     self.__index = self
 
-    o.ai = ai
     o.periodicTreeSearchInterval = 512
     o.treeSearchLocations = treeSearchLocations or {}
     o.closeByTrees = {}
 
-    o:enable()
     return o
 end
 

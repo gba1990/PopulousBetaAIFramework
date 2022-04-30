@@ -1,22 +1,19 @@
 AIModulePopulateDrumTowers = AIModule:new()
 
-function AIModulePopulateDrumTowers:new(o, ai, personModel)
-    local o = o or AIModule:new()
+function AIModulePopulateDrumTowers:new(personModel)
+    local o = AIModule:new()
     setmetatable(o, self)
     self.__index = self
 
-    o.ai = ai
     o.personModel = personModel or M_PERSON_SUPER_WARRIOR -- FWs will fill empty towers
     o.maxRepopulationPerIteration = 15 -- Maximun number of towers to repopulate per iteration
     o.interval = 720
 
-    o:enable()
     return o
 end
 
 -- From Kosjak, ty <3
 function AIModulePopulateDrumTowers:PopulateDrumTowers()
-    logger.msgLog("Called")
     local tribe = self.ai:getTribe()
 
     -- Get Idle/InHut FWs

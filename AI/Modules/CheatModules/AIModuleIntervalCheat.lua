@@ -1,15 +1,13 @@
 AIModuleIntervalCheat = AIModule:new()
 
-function AIModuleIntervalCheat:new(o, ai)
-    local o = o or AIModule:new()
+function AIModuleIntervalCheat:new()
+    local o = AIModule:new()
     setmetatable(o, self)
     self.__index = self
 
-    o.ai = ai
     o.increaseAmount = 6
     o.interval = 12
 
-    o:enable()
     return o
 end
 

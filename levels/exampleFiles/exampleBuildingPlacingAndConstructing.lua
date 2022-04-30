@@ -4,10 +4,10 @@ include("_fr/startPoint.lua")
 local towerX, towerY = 20000, 0
 
 -- We will create some hut plans for blue and send people to harvest and build
-BlueAI = AI:new(nil, TRIBE_BLUE)
+BlueAI = AI:new(TRIBE_BLUE)
 
-local buildPlacer = AIModuleBuildingPlacer:new(nil, BlueAI)
-local populationManager = AIModulePopulationManager:new(nil, BlueAI)
+local buildPlacer = AIModuleBuildingPlacer:new()
+local populationManager = AIModulePopulationManager:new()
 local towerPlace = BuildPlace:new(nil, BlueAI:getTribe(), M_BUILDING_DRUM_TOWER, util.create_Coord2D(towerX, towerY))
 
 -- Print some messages so you see them on screen

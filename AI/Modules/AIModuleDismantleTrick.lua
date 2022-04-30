@@ -1,12 +1,10 @@
 AIModuleDismantleTrick = AIModule:new()
 
-function AIModuleDismantleTrick:new(o, ai)
-    local o = o or AIModule:new()
+function AIModuleDismantleTrick:new()
+    local o = AIModule:new()
     setmetatable(o, self)
     self.__index = self
 
-    o.ai = ai
-    
     o.dismantleInterval = 180 -- Every how many turns check for huts to dismantle
     o.dismantleMaxNumberOfHuts = 3 -- Maximun number of huts being dismantled on the same iteration
     o.dismantleStopOnPopulationOver = 700 -- When to stop the dismantle based on population
@@ -15,7 +13,6 @@ function AIModuleDismantleTrick:new(o, ai)
     o.upgradeCountThreshold = 700 -- Max value of upgrade for the hut to be considered
     o.modelsToCheckForDismantle = {M_BUILDING_TEPEE} -- Determines which type of hut can be dismantled
     
-    o:enable()
     return o
 end
 

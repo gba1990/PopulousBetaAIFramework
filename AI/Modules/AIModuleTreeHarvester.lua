@@ -5,16 +5,14 @@ AIModuleTreeHarvester = AIModule:new()
         AI_MODULE_POPULATION_MANAGER_ID
         AI_MODULE_TREE_MANAGER_ID
 ]]
-function AIModuleTreeHarvester:new(o, ai)
-    local o = o or AIModule:new()
+function AIModuleTreeHarvester:new()
+    local o = AIModule:new()
     setmetatable(o, self)
     self.__index = self
 
-    o.ai = ai
     o.periodicHarvestingInterval = 512
     o.maxNumberOfHarvesters = 5
 
-    o:enable()
     return o
 end
 

@@ -1,7 +1,7 @@
 AI = {tribe = nil, modules = nil}
 
-function AI:new(o, tribe)
-    local o = o or {}
+function AI:new(tribe)
+    local o = {}
     setmetatable(o, self)
     self.__index = self
     
@@ -14,6 +14,7 @@ end
 function AI:setModule(id, module)
     self:disableModule(id)
     self.modules[id] = module
+    module.ai = self
     self:enableModule(id)
 end
 

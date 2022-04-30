@@ -105,14 +105,14 @@ if (math.pow == nil) then
 end
 
 function createAI(tribe)
-    local ai = AI:new(nil, tribe)
+    local ai = AI:new(tribe)
 
-    ai:setModule(AI_MODULE_BUILDING_PLACER_ID, AIModuleBuildingPlacer:new(nil, ai))
-    ai:setModule(AI_MODULE_POPULATION_MANAGER_ID, AIModulePopulationManager:new(nil, ai))
-    ai:setModule(AI_MODULE_TREE_MANAGER_ID, AIModuleTreeManager:new(nil, ai))
-    ai:setModule("buildingManager", AIModuleBuildingManager:new(nil, ai))
-    ai:setModule(AI_MODULE_SHAMAN_MANAGER_ID, AIModuleShaman:new(nil, ai))
-    ai:setModule("treeHarvester", AIModuleTreeHarvester:new(nil, ai))
+    ai:setModule(AI_MODULE_BUILDING_PLACER_ID, AIModuleBuildingPlacer:new())
+    ai:setModule(AI_MODULE_POPULATION_MANAGER_ID, AIModulePopulationManager:new())
+    ai:setModule(AI_MODULE_TREE_MANAGER_ID, AIModuleTreeManager:new())
+    ai:setModule("buildingManager", AIModuleBuildingManager:new())
+    ai:setModule(AI_MODULE_SHAMAN_MANAGER_ID, AIModuleShaman:new())
+    ai:setModule("treeHarvester", AIModuleTreeHarvester:new())
 
     ai:getModule(AI_MODULE_SHAMAN_MANAGER_ID):setBehaviour("dodge", AIShamanBehaviourDodge:new())
     ai:getModule(AI_MODULE_SHAMAN_MANAGER_ID):setBehaviour("casting", AIShamanBehaviourSpellCasting:new())

@@ -1,11 +1,10 @@
 AIModuleCheatAutoSprog = AIModule:new()
 
-function AIModuleCheatAutoSprog:new(o, ai, numberOfBuildings)
-    local o = o or AIModuleIntervalCheat:new()
+function AIModuleCheatAutoSprog:new(numberOfBuildings)
+    local o = AIModuleIntervalCheat:new()
     setmetatable(o, self)
     self.__index = self
 
-    o.ai = ai
     o.affectedModels = {
         M_BUILDING_TEPEE,
         M_BUILDING_TEPEE_2,
@@ -22,7 +21,6 @@ function AIModuleCheatAutoSprog:new(o, ai, numberOfBuildings)
                 and t.u.Bldg.SproggingCount > 100 -- So builds that have just sprogged wont do it again
     end
 
-    o:enable()
     return o
 end
 

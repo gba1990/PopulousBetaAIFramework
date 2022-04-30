@@ -1,11 +1,10 @@
 AIModuleCheatIncreaseUpgrade = AIModule:new() -- Cannot instantiate AIModuleIntervalCheat here, gave an error for no parameters were given
 
-function AIModuleCheatIncreaseUpgrade:new(o, ai)
-    local o = o or AIModuleIntervalCheat:new()
+function AIModuleCheatIncreaseUpgrade:new()
+    local o = AIModuleIntervalCheat:new()
     setmetatable(o, self)
     self.__index = self
 
-    o.ai = ai
     o.affectedModels = {
         M_BUILDING_TEPEE,
         M_BUILDING_TEPEE_2
@@ -18,7 +17,6 @@ function AIModuleCheatIncreaseUpgrade:new(o, ai)
                 and t.State ~= S_BUILDING_UNDER_CONSTRUCTION 
     end
 
-    o:enable()
     return o
 end
 

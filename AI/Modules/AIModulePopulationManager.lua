@@ -27,19 +27,16 @@ local function periodicIdlePeopleChecker(o)
     end)
 end
 
-function AIModulePopulationManager:new(o, ai, gameTurnForInitialCheck)
-    local o = o or AIModule:new()
+function AIModulePopulationManager:new(gameTurnForInitialCheck)
+    local o = AIModule:new()
     setmetatable(o, self)
     self.__index = self
 
-    o.ai = ai
     o.people = initialiseTable()
     o.pseudoIdlePeople = initialiseTable()
     o.pseudoIdleTimeout = 720
 
-    if (gameTurnForInitialCheck == nil) then
-        gameTurnForInitialCheck = 1
-    end
+    gameTurnForInitialCheck = gameTurnForInitialCheck or 1
 
     o.checkForIdlePeople = true
     o.checkForIdlePeopleInterval = 12 -- Actually this checks for new people and removes dead ones
