@@ -98,13 +98,17 @@ end
 
 function AIModulePopulationManager:getIdlePeople(amount, type)
     return self:getPeople(amount, type, function (thing)
-        return thing ~= nil and is_person_available_for_auto_employment(thing) > 0
+        return thing ~= nil and thing.u.Pers ~= nil
+                and is_person_available_for_auto_employment(thing) > 0 
+                and thing.u.Pers.u.Owned.FightGroup == 0 -- Person is not part of an attack party
     end, function (thing)
         -- People marked as pseudoidle have a 33% chance to be selected
         -- (this is to avoid selecting too many people who were doing kinda useful chores)
         local psudoidle = self:isPersonPseudoIdle(thing) and math.random(0,2) == 0
         local inHut = util.isPersonInHut(thing) and math.random(0,1) == 0
-        return thing ~= nil and (psudoidle or inHut)
+        return thing ~= nil 
+                and (psudoidle or inHut) 
+                and thing.u.Pers.u.Owned.FightGroup == 0
     end)
 end
 

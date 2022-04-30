@@ -7,7 +7,7 @@ function AIModulePopulateDrumTowers:new(o, ai, personModel)
 
     o.ai = ai
     o.personModel = personModel or M_PERSON_SUPER_WARRIOR -- FWs will fill empty towers
-    o.maxRepopulationPerIteration = 5 -- Maximun number of towers to repopulate per iteration (Keep at a low value, to avoid selecting ppl which are participating in an attack)
+    o.maxRepopulationPerIteration = 15 -- Maximun number of towers to repopulate per iteration
     o.interval = 720
 
     o:enable()
