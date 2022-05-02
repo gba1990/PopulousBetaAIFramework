@@ -60,6 +60,7 @@ include(AIMODULES_PATH .."/AIModuleBuildingManager.lua")
 include(AIMODULES_PATH .."/AIModuleDismantleTrick.lua")
 include(AIMODULES_PATH .."/AIModuleShaman.lua")
 include(AIMODULES_PATH .."/AIModulePopulateDrumTowers.lua")
+include(AIMODULES_PATH .."/AIModulePeopleTrainer.lua")
 
 -- Shaman
 include(SHAMAN_BEHAVIOURS_PATH .."/AIShamanBehaviour.lua")

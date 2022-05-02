@@ -336,6 +336,11 @@ local function gotoBuilding(person, building)
   commands.reset_person_cmds(person)
   add_persons_command(person, commands.cmd_go_in_bldg(building), 0)
 end
+
+local function gotoTrain(person, building)
+  util.gotoBuilding(person, building)
+end
+
 util = {}
 util.tableLength = tableLength
 util.tableContains = tableContains
@@ -361,6 +366,7 @@ util.shamanGotoSpellCastPoint = shamanGotoSpellCastPoint
 util.setSprogFlag = setSprogFlag
 util.hutForceSprog = hutForceSprog
 util.gotoBuilding = gotoBuilding
+util.gotoTrain = gotoTrain
 
 -- Miscellaneous
 util.randomItemFromTable = randomItemFromTable
