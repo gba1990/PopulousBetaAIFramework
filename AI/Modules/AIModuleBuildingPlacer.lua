@@ -26,10 +26,21 @@ function AIModuleBuildingPlacer:addBuildPlace(buildPlace)
     table.insert(self.buildingsLocations, buildPlace)
 end
 
+function AIModuleBuildingPlacer:removeBuildPlace(buildPlace)
+    for k, v in pairs(self.buildingsLocations) do
+        if (v == buildPlace) then
+            table.remove(self.buildingsLocations, k)
+            break
+        end
+    end
+end
+
 function AIModuleBuildingPlacer:build(buildPlace)
     if (buildPlace:canBeBuilt()) then
         subscribe_ExecuteOnTurn(GetTurn() + self.buildDelay, function()
-            buildPlace:place()
+            if (buildPlace:place()) then
+                self:removeBuildPlace(buildPlace)
+            end
         end)
         self.buildDelay = self.buildDelay + math.random(8, 15)
     end

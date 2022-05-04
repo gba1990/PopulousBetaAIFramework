@@ -47,7 +47,6 @@ include(UTIL_PATH.."/Commands.lua")
 -- AI and modules
 include(AI_PATH .."/AI.lua")
 include(AI_PATH .."/HandlerFunctions.lua")
-include(AI_PATH .."/BuildPlace.lua")
 include(AI_PATH .."/ExpansionPoints/ExpansionPoint.lua")
 include(AI_PATH .."/ExpansionPoints/SinglePointExpansionPoint.lua")
 
@@ -61,6 +60,9 @@ include(AIMODULES_PATH .."/AIModuleDismantleTrick.lua")
 include(AIMODULES_PATH .."/AIModuleShaman.lua")
 include(AIMODULES_PATH .."/AIModulePopulateDrumTowers.lua")
 include(AIMODULES_PATH .."/AIModulePeopleTrainer.lua")
+include(AIMODULES_PATH .."/BuildAreas/BuildPlace.lua")
+include(AIMODULES_PATH .."/BuildAreas/BuildArea.lua")
+include(AIMODULES_PATH .."/BuildAreas/DefensiveBuildArea.lua")
 
 -- Shaman
 include(SHAMAN_BEHAVIOURS_PATH .."/AIShamanBehaviour.lua")

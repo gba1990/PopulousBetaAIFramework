@@ -78,10 +78,22 @@ end
 
 local function placePlan(coordinates, bldg_model, owner, orientation)
   if (orientation == nil) then
-    orientation = util.randomItemFromTable({0,1,2,3})
+    local orientations = {}
+    for i = 0, 3, 1 do
+      if (is_shape_valid_at_map_pos(world_coord2d_to_map_idx(util.to_coord2D(coordinates)), bldg_model, i, owner) > 0) then
+          table.insert(orientations, i)
+      end
+    end
+    orientation = util.randomItemFromTable(orientations)
   end
 
-  local ret = process_shape_map_elements(world_coord2d_to_map_idx(util.to_coord2D(coordinates)), bldg_model, orientation, owner, SHME_MODE_SET_PERM)
+  if (orientation == nil) then
+    return false
+  end
+
+  orientation = frameworkMath.clamp(orientation, 0, 3) -- To avoid unexpected behaviours
+  process_shape_map_elements(world_coord2d_to_map_idx(util.to_coord2D(coordinates)), bldg_model, orientation, owner, SHME_MODE_SET_PERM)
+  return true
 end
 
 -- War of the gods
