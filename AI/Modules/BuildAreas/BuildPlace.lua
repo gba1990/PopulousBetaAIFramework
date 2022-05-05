@@ -92,6 +92,8 @@ function BuildPlace:addDependency(dependency)
 end
 
 function BuildPlace:canBeBuilt()
+    if (GetTurn() < self.gameTurnWhenToPlace or #self.dependencies > 0 or self.hasBeenPlaced) then return false end
+
     local placeable = false
     if (self.orientation == nil) then
         for i = 0, 4, 1 do
@@ -104,17 +106,13 @@ function BuildPlace:canBeBuilt()
         placeable = is_shape_valid_at_map_pos(self.locationAsMapIdx, self.dwellingType, self.orientation, self.tribe) > 0
     end
 
-    return #self.dependencies == 0
-            and not self.hasBeenPlaced
-            and placeable
+    return placeable
 end
 
 function BuildPlace:place()
     if (not self:canBeBuilt()) then
         return false
     end
-    
-    logger.msgLog("Placing...")
 
     util.placePlan(self.location, self.dwellingType, self.tribe, self.orientation)
     self.hasBeenPlaced = true

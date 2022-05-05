@@ -129,7 +129,6 @@ function AIModulePeopleTrainer:AutoTrainPeople()
             if (amountsPerModel[m] > 0 and math.random(0,99) < accumChance) then
                 amountsPerModel[m] = amountsPerModel[m] - 1 -- We send a brave to that model
                 table.insert(result[m], brave)
-                logger.msgLog("Brave to %s", m)
                 break -- Next brave please
             end
         end

@@ -160,6 +160,7 @@ function subscribe_OnTurn(func)
     return index
 end
 function unsubscribe_OnTurn(idx)
+    if (idx == nil) then  return end
     _OnTurn_Subscribed[idx] = nil
 end
 
@@ -169,6 +170,7 @@ function subscribe_ExecuteOnTurn(_turn, _func)
     return index
 end
 function unsubscribe_ExecuteOnTurn(idx)
+    if (idx == nil) then  return end
     _ExecuteOnTurn_Subscribed[idx] = nil
 end
 
@@ -178,6 +180,7 @@ function subscribe_OnCreateThing(func)
     return index
 end
 function unsubscribe_OnCreateThing(idx)
+    if (idx == nil) then  return end
     _OnThing_Subscribed[idx] = nil
 end
 
@@ -188,6 +191,7 @@ function subscribe_OnTrigger(func)
 end
 
 function unsubscribe_OnTrigger(idx)
+    if (idx == nil) then  return end
     _OnTrigger_Subscribed[idx] = nil
 end
 
