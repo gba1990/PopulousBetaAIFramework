@@ -26,6 +26,30 @@ local function tableContains(table, input)
   return false
 end
 
+-- Inserts in tbl1 all elements of tbl2 (Does not keep the original keys)
+local function addAll(tbl1, tbl2)
+  for k, v in pairs(tbl2) do
+    table.insert(tbl1, v)
+  end
+  return tbl1
+end
+
+-- https://stackoverflow.com/questions/20066835/lua-remove-duplicate-elements
+local function eliminateDuplicates(tbl)
+  local result = {}
+  local hash = {}
+  
+  for _,v in ipairs(tbl) do
+    if (not hash[v]) then
+      --result[#result+1] = v
+      table.insert(result, v)
+      hash[v] = true
+    end
+  end
+
+  return result
+end
+
 local function objectListToTable(objectList)
   local result = {}
   for i = 0, objectList:count() - 1, 1 do
@@ -85,6 +109,54 @@ local function canPlayerPlacePlanAtPos(mapIdOrCoord, bldg_model, orientation, ow
   getPlayer(owner).PlayerType = HUMAN_PLAYER
   local result = is_shape_valid_at_map_pos(mapIdOrCoord, bldg_model, orientation, owner)
   getPlayer(owner).PlayerType = before
+  return result
+end
+
+-- If radius is 3*512 -> thats the area used by a hut
+local function getHutBuildableMapElementsAtPosition(center, radius, owner)
+  local result = {}
+  local bldg_model = M_BUILDING_TEPEE
+  
+  center = util.to_coord2D(center)
+  SearchMapCells(SQUARE, 0, 0, math.floor(radius/512), world_coord2d_to_map_idx(center), function(me)
+      -- Check any orientation
+      local c2 = Coord2D.new()
+      map_ptr_to_world_coord2d(me, c2)
+      for i = 1, 3, 1 do
+        if (util.canPlayerPlacePlanAtPos(c2, bldg_model, i, owner) > 0) then
+          table.insert(result, me)
+          break
+        end
+      end
+
+    return true
+  end)
+
+  return result
+end
+
+-- Radius of 4 is minimun and 6 maximun (around huts, bigger bldgs may use other dimensions)
+local function getHutBuildableMapElementsAroundBuilding(buildingThing, radius)
+  local result = {}
+  local bldg_model = M_BUILDING_TEPEE
+  
+  local center = buildingThing.Pos.D2
+  local innerRadius = 3
+  local radius = radius or 6
+  local owner = buildingThing.Owner
+  SearchMapCells(SQUARE, 0, innerRadius, radius, world_coord2d_to_map_idx(center), function(me)
+      local c2 = Coord2D.new()
+      map_ptr_to_world_coord2d(me, c2)
+      for i = 1, 3, 1 do
+        if (util.canPlayerPlacePlanAtPos(c2, bldg_model, i, owner) > 0) then
+          table.insert(result, me)
+          break
+        end
+      end
+
+    return true
+  end)
+
   return result
 end
 
@@ -371,6 +443,8 @@ end
 util = {}
 util.tableLength = tableLength
 util.tableContains = tableContains
+util.addAll = addAll
+util.eliminateDuplicates = eliminateDuplicates
 util.doesExist = tableContains
 util.objectListToTable = objectListToTable
 util.spellTargetThing = spellTargetThing
@@ -378,6 +452,8 @@ util.commandPersonGoToPoint = commandPersonGoToPoint
 util.commandPersonToPatrol = commandPersonToPatrol
 util.placePlan = placePlan
 util.canPlayerPlacePlanAtPos = canPlayerPlacePlanAtPos
+util.getHutBuildableMapElementsAtPosition = getHutBuildableMapElementsAtPosition
+util.getHutBuildableMapElementsAroundBuilding = getHutBuildableMapElementsAroundBuilding
 util.sendPersonToBuild = sendPersonToBuild
 util.sendPersonToDismantle = sendPersonToDismantle
 util.isPersonInHut = isPersonInHut

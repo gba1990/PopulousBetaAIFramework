@@ -151,6 +151,38 @@ function functional.map(f, ...)
 
 	return aux
 end
+
+function functional.map2(f, ...)
+	
+	assert(f ~= nil)
+	assert(...  ~= nil)
+	--assert(#... > 0) -- This check failed for some reason
+	assert(type(f) == 'function')
+	
+	local tabs = {...}
+
+	if type(tabs[1]) ~= 'table' then return nil end
+	
+	for i = 1, #tabs do
+		if type(tabs[i]) ~= 'table' then return nil end
+	end
+
+	for i = 1, #tabs do
+		if #tabs[i] ~= #tabs[1] then return nil end
+	end
+	
+	local aux = {}
+
+	for j = 1, #tabs[1] do
+		local aux2 = {}
+		for i = 1, #tabs do
+			table.insert(aux2,tabs[i][j])
+		end
+		table.insert(aux, f(table.unpack(aux2)))
+	end
+
+	return aux
+end
  
 
 -- Function: Reduce table according to the operation defined
