@@ -120,6 +120,6 @@ function AIModuleDismantleTrick:disable()
     if (not self.isEnabled) then
         return
     end
-    self:setEnabled(true)
+    self:setEnabled(false)
     self:dontDoDismantleTrick()
 end
