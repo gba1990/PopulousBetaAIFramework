@@ -25,7 +25,7 @@ function BuildArea:estimateNumberOfTowers()
         local map_idx = world_coord2d_to_map_idx(c2)
         
         for i = 0, 3, 1 do
-            if (is_shape_valid_at_map_pos(map_idx, M_BUILDING_DRUM_TOWER, i, tribe) > 0) then
+            if (util.canPlayerPlacePlanAtPos(map_idx, M_BUILDING_DRUM_TOWER, i, tribe) > 0) then
                 table.insert(self.buildableLocations, {coords = c2, map_idx = map_idx})
                 numBuildableCells = numBuildableCells + 1
                 break -- We just need 1 orientation to be true
@@ -62,7 +62,7 @@ function BuildArea:determineNewTowerLocation()
         -- Set a random orientation to that building
         local orientatations = {}
         for i = 0, 3, 1 do
-            if (is_shape_valid_at_map_pos(entry.map_idx, M_BUILDING_DRUM_TOWER, i, self.ai:getTribe()) > 0) then
+            if (util.canPlayerPlacePlanAtPos(entry.map_idx, M_BUILDING_DRUM_TOWER, i, self.ai:getTribe()) > 0) then
                 table.insert(orientatations, i)
             end
         end

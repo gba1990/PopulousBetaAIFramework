@@ -76,11 +76,23 @@ local function commandPersonToPatrol(thing, ...)
   end
 end
 
+local function canPlayerPlacePlanAtPos(mapIdOrCoord, bldg_model, orientation, owner)
+  if (type(mapIdOrCoord) ~= "number") then
+    mapIdOrCoord = world_coord2d_to_map_idx(util.to_coord2D(mapIdOrCoord))
+  end
+
+  local before = getPlayer(owner).PlayerType
+  getPlayer(owner).PlayerType = HUMAN_PLAYER
+  local result = is_shape_valid_at_map_pos(mapIdOrCoord, bldg_model, orientation, owner)
+  getPlayer(owner).PlayerType = before
+  return result
+end
+
 local function placePlan(coordinates, bldg_model, owner, orientation)
   if (orientation == nil) then
     local orientations = {}
     for i = 0, 3, 1 do
-      if (is_shape_valid_at_map_pos(world_coord2d_to_map_idx(util.to_coord2D(coordinates)), bldg_model, i, owner) > 0) then
+      if (util.canPlayerPlacePlanAtPos(world_coord2d_to_map_idx(util.to_coord2D(coordinates)), bldg_model, i, owner) > 0) then
           table.insert(orientations, i)
       end
     end
@@ -92,7 +104,10 @@ local function placePlan(coordinates, bldg_model, owner, orientation)
   end
 
   orientation = frameworkMath.clamp(orientation, 0, 3) -- To avoid unexpected behaviours
+  local before = getPlayer(owner).PlayerType
+  getPlayer(owner).PlayerType = HUMAN_PLAYER
   process_shape_map_elements(world_coord2d_to_map_idx(util.to_coord2D(coordinates)), bldg_model, orientation, owner, SHME_MODE_SET_PERM)
+  getPlayer(owner).PlayerType = before
   return true
 end
 
@@ -362,6 +377,7 @@ util.spellTargetThing = spellTargetThing
 util.commandPersonGoToPoint = commandPersonGoToPoint
 util.commandPersonToPatrol = commandPersonToPatrol
 util.placePlan = placePlan
+util.canPlayerPlacePlanAtPos = canPlayerPlacePlanAtPos
 util.sendPersonToBuild = sendPersonToBuild
 util.sendPersonToDismantle = sendPersonToDismantle
 util.isPersonInHut = isPersonInHut

@@ -97,13 +97,13 @@ function BuildPlace:canBeBuilt()
     local placeable = false
     if (self.orientation == nil) then
         for i = 0, 4, 1 do
-            placeable = is_shape_valid_at_map_pos(self.locationAsMapIdx, self.dwellingType, i, self.tribe) > 0
+            placeable = util.canPlayerPlacePlanAtPos(self.locationAsMapIdx, self.dwellingType, i, self.tribe) > 0
             if (placeable) then
                 break
             end
         end
     else
-        placeable = is_shape_valid_at_map_pos(self.locationAsMapIdx, self.dwellingType, self.orientation, self.tribe) > 0
+        placeable = util.canPlayerPlacePlanAtPos(self.locationAsMapIdx, self.dwellingType, self.orientation, self.tribe) > 0
     end
 
     return placeable

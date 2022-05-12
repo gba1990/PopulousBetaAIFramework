@@ -32,7 +32,7 @@ local function sendPeopleToEmptyPlans(o)
     end
     
     o.placedPlans = plans -- This way we eliminate completed plans and remove innaccesible/destroyed ones
-    o.sendPeopleToPlacedPlansSubscriptionIndex2 = subscribe_ExecuteOnTurn(GetTurn() + 512, function()
+    o.sendPeopleToPlacedPlansSubscriptionIndex2 = subscribe_ExecuteOnTurn(GetTurn() + o.intervalToSendPeopleToPartialPlans, function()
         sendPeopleToEmptyPlans(o)
     end)
 end
@@ -68,6 +68,7 @@ function AIModuleBuildingManager:new(harvestBeforeBuilding)
     o.behaviourPerPlan[M_BUILDING_AIRSHIP_HUT_1 ] = handlerFunctions.OnPlacedPlanHandler.harvestAndSendPeople
     o.fallBackBehaviourPerPlan = handlerFunctions.OnPlacedPlanHandler.doNothing
     
+    o.intervalToSendPeopleToPartialPlans = 512
     return o
 end
 

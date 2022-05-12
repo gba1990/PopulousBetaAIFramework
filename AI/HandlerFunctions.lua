@@ -214,7 +214,7 @@ local function OnPlacedPlanHandler_HarvestAndSendPeople(o, plan)
     local bravesSentToThatTree = 0
     for i = 1, #braves, 1 do
         treeThing, treeIndex, bravesSentToThatTree = selectTree(treeIndex, treeThings, bravesSentToThatTree)
-        util.sendPersonToBuild(braves[i], plan, treeThing)
+        util.sendPersonToBuild(braves[i], plan, treeThing) --- TODO Error here, was brave nil? 
         if (treeThing ~= nil) then
             treeManager:reduceWoodOfTree(treeThing, 100) -- We will cut down 1 wood from that tree
         end
