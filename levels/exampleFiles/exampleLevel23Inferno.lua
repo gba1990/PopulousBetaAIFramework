@@ -40,10 +40,16 @@ local redAI = createAI(TRIBE_RED)
 local yellowAI = createAI(TRIBE_YELLOW)
 local greenAI = createAI(TRIBE_GREEN)
 
+-- Let the AI use dismantle trick
+redAI:setModule("dismantle_trick", AIModuleDismantleTrick:new())
+yellowAI:setModule("dismantle_trick", AIModuleDismantleTrick:new())
+greenAI:setModule("dismantle_trick", AIModuleDismantleTrick:new())
+
 logger.msgLog("  Script loaded!")
 logger.msgLog("At 10 minute mark,")
 logger.msgLog("AI's populations will")
 logger.msgLog("be displayed here")
+logger.msgLog("  The game will automatically pause")
 
 -- Add entries for the treeManager module to search for trees there for each tribe
 -- For yellow, it covers the whole crab island, this may be bad as they tend to farm trees far from the 
@@ -72,7 +78,25 @@ logArea(entries[3].centre, entries[3].radius, 10)
 
 -- After 10 minutes, display on the screen the populations for each tribe
 subscribe_ExecuteOnTurn(7200, function()
+    gnsi().Flags = gnsi().Flags | GNS_PAUSED -- Pause the game
     logger.msgLog("Red has %s people", GET_NUM_PEOPLE(TRIBE_RED))
     logger.msgLog("Yellow has %s people", GET_NUM_PEOPLE(TRIBE_YELLOW))
     logger.msgLog("Green has %s people", GET_NUM_PEOPLE(TRIBE_GREEN))
 end)
+
+
+--[[
+    -- Optional stuff:
+
+    -- Use these builders, so the AI builds more huts
+    redAI:setModule("LookAhead", LookAheadBuilder:new(999, false, false))
+    yellowAI:setModule("LookAhead", LookAheadBuilder:new(999, false, false))
+    greenAI:setModule("LookAhead", LookAheadBuilder:new(999, false, false))
+
+    -- Give red a ton of extra trees to have enough wood for all builds
+    for i = 1, 30, 1 do
+        createThing(T_SCENERY, M_SCENERY_TREE_1, 0, util.to_coord3D(entries[2].centre), false, false)
+        createThing(T_SCENERY, M_SCENERY_TREE_1, 0, util.to_coord3D(entries[3].centre), false, false)
+    end
+
+]]

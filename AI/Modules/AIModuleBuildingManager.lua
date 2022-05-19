@@ -84,10 +84,13 @@ function AIModuleBuildingManager:doSendPeopleToPlacedPlans()
     self.sendPeopleToPlacedPlansSubscriptionIndex = subscribe_OnCreateThing(function (thing)
         if (thing.Type == T_SHAPE and thing.Owner == self.ai:getTribe()) then
             table.insert(self.placedPlans, {plan = thing, gameTurnPlaced = GetTurn()})
+            -- Damaged buildings will be handled at sendPeopleToEmptyPlans
             if (thing.u.Shape.AttackDamageDelay == 0) then
-                -- New building, damaged buildings will be handled at sendPeopleToEmptyPlans
-                local behaviour = self.behaviourPerPlan[thing.u.Shape.BldgModel] or self.fallBackBehaviourPerPlan
-                behaviour(self, thing)
+                -- Non-damaged semibuilt plans are from dismantled => no need to build it, whoever dismantled it knows what its doing with that hut
+                if (thing.u.Shape.AcquiredWood == 0) then
+                    local behaviour = self.behaviourPerPlan[thing.u.Shape.BldgModel] or self.fallBackBehaviourPerPlan
+                    behaviour(self, thing)
+                end
             end
         end
     end)
