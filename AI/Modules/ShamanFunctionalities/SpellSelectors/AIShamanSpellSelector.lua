@@ -210,8 +210,7 @@ function AIShamanSpellSelector:lightningCandidateChecker()
                         entry.coordinates = position
                         entry.target = nil
                     end
-
-                elseif (t.Type == T_BUILDING and t.State ~= S_BUILDING_ON_FIRE and t.State ~= S_BUILDING_UNDER_CONSTRUCTION) then
+                elseif (t.Type == T_BUILDING and t.State == S_BUILDING_STAND) then
                     if (t.Model == M_BUILDING_TEMPLE or t.Model == M_BUILDING_WARRIOR_TRAIN or t.Model == M_BUILDING_SUPER_TRAIN) then
                         entry.score = 30 + math.random(0, 30)
                     end
@@ -248,7 +247,7 @@ function AIShamanSpellSelector:tornadoCandidateChecker()
 
                 if (t.Type == T_PERSON and is_person_in_drum_tower(t) == 1 and t.Flags3 & TF3_SHIELD_ACTIVE == 0 and isPersonThingValidForSpellCast(t)) then
                     entry.score = 15 * t.Model
-                elseif (t.Type == T_BUILDING and t.State ~= S_BUILDING_ON_FIRE and t.State ~= S_BUILDING_UNDER_CONSTRUCTION) then
+                elseif (t.Type == T_BUILDING and t.State == S_BUILDING_STAND) then
                     entry.score = 25
                     if (t.Model == M_BUILDING_TEMPLE or t.Model == M_BUILDING_WARRIOR_TRAIN or t.Model == M_BUILDING_SUPER_TRAIN) then
                         entry.score = 40 + math.random(0, 20)
@@ -277,7 +276,7 @@ function AIShamanSpellSelector:earthquakeCandidateChecker()
                     target = t,
                     score = 0
                 }
-                if (t.Type == T_BUILDING and t.State ~= S_BUILDING_ON_FIRE and t.State ~= S_BUILDING_UNDER_CONSTRUCTION) then
+                if (t.Type == T_BUILDING and t.State == S_BUILDING_STAND) then
                     local score = 0
                     SearchMapCells(CIRCULAR, 0, 0, 6, world_coord3d_to_map_idx(t.Pos.D3), function(me)
                         me.MapWhoList:processList(function(t)
