@@ -183,6 +183,259 @@ local function placePlan(coordinates, bldg_model, owner, orientation)
   return true
 end
 
+local function isMapElementDamagedLand(me)
+  return me.Flags & (1 << 26) ~= 0
+end
+
+local function areCoordinatesDamagedLand(coord)
+  return util.isMapElementDamagedLand(world_coord2d_to_map_ptr(util.to_coord2D(coord)))
+end
+
+local function isMapIdxOkForEntrance(_mapidx)
+  local c2d = Coord2D.new()
+  map_idx_to_world_coord2d(_mapidx, c2d)
+  return is_point_steeper_than(c2d, 300) == 0
+end
+
+local function isMapIdxOkForBuilding(_mapidx)
+  local c2 = Coord2D.new()
+  map_idx_to_world_coord2d(_mapidx, c2)
+
+  return isMapIdxOkForEntrance(_mapidx) 
+      and is_map_cell_land(_mapidx) == 1
+      and is_cell_too_steep_for_building(_mapidx, 0) == 0 -- Dunno what second param does, but.. like this it does what its meant to do
+      and not util.areCoordinatesDamagedLand(c2)
+end
+
+local function isLandOkForBuilding_WarrTrain(_mapidx, _orient)
+  local buildable = true
+  
+  local mp1 = MapPosXZ.new()
+  local mp2 = MapPosXZ.new()
+  local mp3 = MapPosXZ.new()
+  local mpe = MapPosXZ.new()
+  mp1.Pos = _mapidx
+  mp2.Pos = _mapidx
+  mp3.Pos = _mapidx
+  mpe.Pos = _mapidx
+
+  increment_map_idx_by_orient(mpe, (2 + _orient) % 4)
+  increment_map_idx_by_orient(mpe, (2 + _orient) % 4)
+  local c2d = Coord2D.new()
+
+  if (not isMapIdxOkForEntrance(mpe.Pos)) then
+    buildable = false
+    goto skip
+  end
+
+  -- Check the "back" of the hut
+  increment_map_idx_by_orient(mp1, (0 + _orient) % 4)
+  increment_map_idx_by_orient(mp2, (0 + _orient) % 4)
+  increment_map_idx_by_orient(mp3, (0 + _orient) % 4)
+  increment_map_idx_by_orient(mp1, (2 + _orient + 1) % 4)
+  increment_map_idx_by_orient(mp3, (2 + _orient - 1) % 4)
+  
+  if (not isMapIdxOkForBuilding(mp1.Pos)) then
+    buildable = false
+    goto skip
+  end
+
+  if (not isMapIdxOkForBuilding(mp2.Pos)) then
+    buildable = false
+    goto skip
+  end
+
+  if (not isMapIdxOkForBuilding(mp3.Pos)) then
+    buildable = false
+    goto skip
+  end
+
+  -- Work the way towards the front
+  for i = 0, 1 do
+    increment_map_idx_by_orient(mp1, (2 + _orient - 4) % 4)
+    increment_map_idx_by_orient(mp2, (2 + _orient - 4) % 4)
+    increment_map_idx_by_orient(mp3, (2 + _orient - 4) % 4)
+
+    map_idx_to_world_coord2d(mp1.Pos, c2d)
+    if (is_point_steeper_than(c2d, maxAltDiff) ~= 0) then
+      buildable = false
+      break
+    end
+
+    map_idx_to_world_coord2d(mp2.Pos, c2d)
+    if (is_point_steeper_than(c2d, maxAltDiff) ~= 0) then
+      buildable = false
+      break
+    end
+
+    map_idx_to_world_coord2d(mp3.Pos, c2d)
+    if (is_point_steeper_than(c2d, maxAltDiff) ~= 0) then
+      buildable = false
+      break
+    end
+  end
+  
+  ::skip::
+  return buildable
+end
+
+local function isLandOkForBuilding_Temple(_mapidx, _orient)
+  local buildable = true
+
+  local mp1 = MapPosXZ.new()
+  local mp2 = MapPosXZ.new()
+  local mp3 = MapPosXZ.new()
+  local mpe = MapPosXZ.new()
+  mp1.Pos = _mapidx
+  mp2.Pos = _mapidx
+  mp3.Pos = _mapidx
+  mpe.Pos = _mapidx
+
+  increment_map_idx_by_orient(mpe, (2 + _orient) % 4)
+  increment_map_idx_by_orient(mpe, (2 + _orient) % 4)
+  increment_map_idx_by_orient(mpe, (2 + _orient) % 4)
+
+  if (not isMapIdxOkForEntrance(mpe.Pos)) then
+    buildable = false
+    goto skip
+  end
+
+  increment_map_idx_by_orient(mp1, (0 + _orient) % 4)
+  increment_map_idx_by_orient(mp2, (0 + _orient) % 4)
+  increment_map_idx_by_orient(mp3, (0 + _orient) % 4)
+  increment_map_idx_by_orient(mp1, (2 + _orient + 1) % 4)
+  increment_map_idx_by_orient(mp3, (2 + _orient - 1) % 4)
+
+
+  if (not isMapIdxOkForBuilding(mp1.Pos)) then
+    buildable = false
+    goto skip
+  end
+  if (not isMapIdxOkForBuilding(mp2.Pos)) then
+    buildable = false
+    goto skip
+  end
+  if (not isMapIdxOkForBuilding(mp3.Pos)) then
+    buildable = false
+    goto skip
+  end
+
+  for i = 0, 2 do
+    increment_map_idx_by_orient(mp1, (2 + _orient - 4) % 4)
+    increment_map_idx_by_orient(mp2, (2 + _orient - 4) % 4)
+    increment_map_idx_by_orient(mp3, (2 + _orient - 4) % 4)
+
+    if (not isMapIdxOkForBuilding(mp1.Pos)) then
+      buildable = false
+      break
+    end
+    if (not isMapIdxOkForBuilding(mp2.Pos)) then
+      buildable = false
+      break
+    end
+    if (not isMapIdxOkForBuilding(mp3.Pos)) then
+      buildable = false
+      break
+    end
+  end
+
+  ::skip::
+  return buildable
+end
+
+
+local function isLandOkForBuilding_FwTrain(_mapidx, _orient)
+  local buildable = true
+  
+  local mp1 = MapPosXZ.new()
+  local mp2 = MapPosXZ.new()
+  local mp3 = MapPosXZ.new()
+  local mp4 = MapPosXZ.new()
+  local mpe = MapPosXZ.new()
+  mp1.Pos = _mapidx
+  mp2.Pos = _mapidx
+  mp3.Pos = _mapidx
+  mp4.Pos = _mapidx
+  mpe.Pos = _mapidx
+
+  increment_map_idx_by_orient(mpe, (2 + _orient) % 4)
+  increment_map_idx_by_orient(mpe, (2 + _orient) % 4)
+  increment_map_idx_by_orient(mpe, (2 + _orient) % 4)
+
+  if (not isMapIdxOkForEntrance(mpe.Pos)) then
+    buildable = false
+    goto skip
+  end
+
+  increment_map_idx_by_orient(mp1, (0 + _orient) % 4)
+  increment_map_idx_by_orient(mp2, (0 + _orient) % 4)
+  increment_map_idx_by_orient(mp3, (0 + _orient) % 4)
+  increment_map_idx_by_orient(mp4, (0 + _orient) % 4)
+  increment_map_idx_by_orient(mp1, (2 + _orient + 1) % 4)
+  increment_map_idx_by_orient(mp4, (2 + _orient - 1) % 4)
+  increment_map_idx_by_orient(mp4, (2 + _orient - 1) % 4)
+  increment_map_idx_by_orient(mp3, (2 + _orient - 1) % 4)
+
+  if (not isMapIdxOkForBuilding(mp1.Pos)) then
+    buildable = false
+    goto skip
+  end
+  if (not isMapIdxOkForBuilding(mp2.Pos)) then
+    buildable = false
+    goto skip
+  end
+  if (not isMapIdxOkForBuilding(mp3.Pos)) then
+    buildable = false
+    goto skip
+  end
+  if (not isMapIdxOkForBuilding(mp4.Pos)) then
+    buildable = false
+    goto skip
+  end
+
+  for i = 0, 2 do
+    increment_map_idx_by_orient(mp1, (2 + _orient - 4) % 4)
+    increment_map_idx_by_orient(mp2, (2 + _orient - 4) % 4)
+    increment_map_idx_by_orient(mp3, (2 + _orient - 4) % 4)
+    increment_map_idx_by_orient(mp4, (2 + _orient - 4) % 4)
+
+    if (not isMapIdxOkForBuilding(mp1.Pos)) then
+      buildable = false
+      break
+    end
+    if (not isMapIdxOkForBuilding(mp2.Pos)) then
+      buildable = false
+      break
+    end
+    if (not isMapIdxOkForBuilding(mp3.Pos)) then
+      buildable = false
+      break
+    end
+    if (not isMapIdxOkForBuilding(mp4.Pos)) then
+      buildable = false
+      break
+    end
+  end
+
+  ::skip::
+  return buildable
+end
+
+-- Ty kosjak
+local function isLandOkForBuilding(mapIdxOrCoord, bldg_model, orientation)
+  if (type(mapIdxOrCoord) ~= "number") then
+    mapIdxOrCoord = world_coord2d_to_map_idx(util.to_coord2D(mapIdxOrCoord))
+  end
+
+  local t = {}
+  t[M_BUILDING_TEPEE] = isLandOkForBuilding_WarrTrain
+  t[M_BUILDING_TEMPLE] = isLandOkForBuilding_Temple
+  t[M_BUILDING_WARRIOR_TRAIN] = isLandOkForBuilding_WarrTrain
+  t[M_BUILDING_SUPER_TRAIN] = isLandOkForBuilding_FwTrain
+
+  return t[bldg_model](mapIdxOrCoord, orientation)
+end
+
 -- War of the gods
 local function sendPersonToBuild(personThing, shapeThing, treeToHarvest)
   commands.reset_person_cmds(personThing)
@@ -454,6 +707,9 @@ util.placePlan = placePlan
 util.canPlayerPlacePlanAtPos = canPlayerPlacePlanAtPos
 util.getHutBuildableMapElementsAtPosition = getHutBuildableMapElementsAtPosition
 util.getHutBuildableMapElementsAroundBuilding = getHutBuildableMapElementsAroundBuilding
+util.isMapElementDamagedLand = isMapElementDamagedLand
+util.areCoordinatesDamagedLand = areCoordinatesDamagedLand
+util.isLandOkForBuilding = isLandOkForBuilding
 util.sendPersonToBuild = sendPersonToBuild
 util.sendPersonToDismantle = sendPersonToDismantle
 util.isPersonInHut = isPersonInHut
