@@ -257,20 +257,15 @@ local function isLandOkForBuilding_WarrTrain(_mapidx, _orient)
     increment_map_idx_by_orient(mp2, (2 + _orient - 4) % 4)
     increment_map_idx_by_orient(mp3, (2 + _orient - 4) % 4)
 
-    map_idx_to_world_coord2d(mp1.Pos, c2d)
-    if (is_point_steeper_than(c2d, maxAltDiff) ~= 0) then
+    if (not isMapIdxOkForBuilding(mp1.Pos)) then
       buildable = false
       break
     end
-
-    map_idx_to_world_coord2d(mp2.Pos, c2d)
-    if (is_point_steeper_than(c2d, maxAltDiff) ~= 0) then
+    if (not isMapIdxOkForBuilding(mp2.Pos)) then
       buildable = false
       break
     end
-
-    map_idx_to_world_coord2d(mp3.Pos, c2d)
-    if (is_point_steeper_than(c2d, maxAltDiff) ~= 0) then
+    if (not isMapIdxOkForBuilding(mp3.Pos)) then
       buildable = false
       break
     end

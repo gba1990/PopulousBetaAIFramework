@@ -1,4 +1,4 @@
-BuildPlace = {NO_SPECIFIC_PLACE_TURN = nil}
+BuildPlace = {NO_SPECIFIC_PLACE_TURN = -1}
 
 -- Helper
 local function _planHasBeenFullyBuiltChecker(buildplace, thing)
@@ -37,7 +37,7 @@ function BuildPlace:new(o, tribe, dwellingType, location, orientation, gameTurnW
     setmetatable(o, self)
     self.__index = self
     
-    self.NO_SPECIFIC_PLACE_TURN = nil
+    self.NO_SPECIFIC_PLACE_TURN = -1
     o.tribe = tribe
     o.dwellingType = dwellingType
     o.location = location
