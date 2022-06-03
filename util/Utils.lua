@@ -175,7 +175,8 @@ local function placePlan(coordinates, bldg_model, owner, orientation)
     return false
   end
 
-  orientation = frameworkMath.clamp(orientation, 0, 3) -- To avoid unexpected behaviours
+  orientation = math.min(math.max(orientation, 0), 3) -- To avoid unexpected behaviours
+
   local before = getPlayer(owner).PlayerType
   getPlayer(owner).PlayerType = HUMAN_PLAYER
   process_shape_map_elements(world_coord2d_to_map_idx(util.to_coord2D(coordinates)), bldg_model, orientation, owner, SHME_MODE_SET_PERM)
