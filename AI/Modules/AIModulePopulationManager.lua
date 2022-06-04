@@ -12,7 +12,10 @@ local function initialiseTable()
     return result
 end
 
-local function periodicIdlePeopleChecker(o)
+local function updatePeopleTable(o)
+    if (GetTurn() == o.lastCheckTurn) then return end -- Skip update if we already updated this turn
+
+    o.lastCheckTurn = GetTurn()
     o.people = initialiseTable()
 
     ProcessGlobalSpecialList(o.ai:getTribe(), 0, function(thing)
@@ -21,13 +24,9 @@ local function periodicIdlePeopleChecker(o)
         end
         return true
     end)
-
-    o.checkForIdlePeopleIntervalSubscriptionIndex = subscribe_ExecuteOnTurn(GetTurn() + o.checkForIdlePeopleInterval, function()
-        periodicIdlePeopleChecker(o)
-    end)
 end
 
-function AIModulePopulationManager:new(gameTurnForInitialCheck)
+function AIModulePopulationManager:new()
     local o = AIModule:new()
     setmetatable(o, self)
     self.__index = self
@@ -36,25 +35,9 @@ function AIModulePopulationManager:new(gameTurnForInitialCheck)
     o.pseudoIdlePeople = initialiseTable()
     o.pseudoIdleTimeout = 720
 
-    gameTurnForInitialCheck = gameTurnForInitialCheck or 1
-
     o.checkForIdlePeople = true
     o.checkForIdlePeopleInterval = 12 -- Actually this checks for new people and removes dead ones
-    o.checkForIdlePeopleIntervalSubscriptionIndex = subscribe_ExecuteOnTurn(GetTurn() + gameTurnForInitialCheck + o.checkForIdlePeopleInterval, function()
-        periodicIdlePeopleChecker(o)
-    end)
-
-    -- Start is set to 12 game turns, why? in order not to select FW which are placed on doors of towers or that ppl prepared to patrol
-    o.checkForIdlePeopleAtEnable = true
-    o.checkForIdlePeopleAtEnableSubscriptionIndex = subscribe_ExecuteOnTurn(GetTurn() + gameTurnForInitialCheck, function()
-        ProcessGlobalSpecialList(o.ai:getTribe(), 0, function(thing)
-            if (thing.Type == T_PERSON and thing.Model >= M_PERSON_BRAVE and thing.Model <= M_PERSON_SUPER_WARRIOR) then
-                table.insert(o.people[thing.Model], thing)
-            end
-            return true
-        end)
-    end)
-
+    o.lastCheckTurn = -1 -- Last turn when new people were checked
     return o
 end
 
@@ -118,6 +101,7 @@ function AIModulePopulationManager:getPeople(amount, type, criteria1, criteria2)
         return false
     end
 
+    updatePeopleTable(self) -- So new/dead people are updated
     local result = getPeopleFromTable(self, self.people, amount, type, function(thing)
         return criteria1(thing), criteria2(thing)
     end)
@@ -168,20 +152,6 @@ function AIModulePopulationManager:enable()
         return
     end
     self:setEnabled(true)
-
-    if (self.checkForIdlePeopleAtEnable) then
-        self.checkForIdlePeopleAtEnableSubscriptionIndex = subscribe_ExecuteOnTurn(GetTurn(), function()
-            ProcessGlobalSpecialList(self.ai:getTribe(), 0, function(thing)
-                if (thing.Type == T_PERSON and thing.Model >= M_PERSON_BRAVE and thing.Model <= M_PERSON_SUPER_WARRIOR) then
-                    table.insert(self.people[thing.Model], thing)
-                end
-                return true
-            end)
-        end)
-    end
-    self.checkForIdlePeopleIntervalSubscriptionIndex = subscribe_ExecuteOnTurn(GetTurn() + self.checkForIdlePeopleInterval, function()
-        periodicIdlePeopleChecker(self)
-    end)
 end
 
 function AIModulePopulationManager:disable()
@@ -189,6 +159,4 @@ function AIModulePopulationManager:disable()
         return
     end
     self:setEnabled(false)
-    unsubscribe_ExecuteOnTurn(self.checkForIdlePeopleAtEnableSubscriptionIndex)
-    unsubscribe_ExecuteOnTurn(self.checkForIdlePeopleIntervalSubscriptionIndex)
 end
