@@ -204,6 +204,7 @@ local function isMapIdxOkForBuilding(_mapidx)
 
   return isMapIdxOkForEntrance(_mapidx) 
       and is_map_cell_land(_mapidx) == 1
+      and are_surround_cells_all_land(_mapidx) == 1 -- Apparently also required
       and is_cell_too_steep_for_building(_mapidx, 0) == 0 -- Dunno what second param does, but.. like this it does what its meant to do
       and not util.areCoordinatesDamagedLand(c2)
 end
