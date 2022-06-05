@@ -1,5 +1,7 @@
 BuildingReplacerBuilder = AIModule:new()
 
+-- TODO: program numMaxBuildingsToCheckAround. Make sure after dismantle, the train hut can be placed (make sure there are builds near by)
+
 function BuildingReplacerBuilder:new(numMaxBuildingsToCheckAround, bldg_model)
     local o = AIModule:new()
     setmetatable(o, self)
